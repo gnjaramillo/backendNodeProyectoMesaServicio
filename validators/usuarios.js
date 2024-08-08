@@ -4,8 +4,10 @@ const validateResults = require("../utils/handleValidator");
 
 const validatorPostUsuarios = [
     check("nombre").exists().notEmpty().trim().escape().withMessage("El nombre es requerido"),
-    check("correo").exists().notEmpty().isEmail().normalizeEmail().withMessage("El correo electrónico no es válido"),
-    check("rol").exists().notEmpty().trim().escape().isIn(['funcionario Sena', 'admin tics', 'tecnico tics']).withMessage("El rol no es válido"),
+    check("correo")
+        .exists().notEmpty().isEmail().normalizeEmail().withMessage("El correo electrónico no es válido")
+        .matches(/@sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
+    check("rol").exists().notEmpty().trim().escape().isIn( ['Funcionario', 'Lider TIC', 'Tecnico']).withMessage("El rol no es válido"),
     check("telefono").exists().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
     check("password").exists().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
     check("aprobado").optional().isBoolean().withMessage("El estado de aprobación debe ser un valor booleano"),
@@ -16,8 +18,10 @@ const validatorPostUsuarios = [
 
 const validatorUpdateUsuarios = [
     check("nombre").optional().notEmpty().trim().escape().withMessage("El nombre es requerido"),
-    check("correo").optional().notEmpty().isEmail().normalizeEmail().withMessage("El correo electrónico no es válido"),
-    check("rol").optional().notEmpty().trim().escape().isIn(['funcionario Sena', 'admin tics', 'tecnico tics']).withMessage("El rol no es válido"),
+    check("correo")
+        .exists().notEmpty().isEmail().normalizeEmail().withMessage("El correo electrónico no es válido")
+        .matches(/@sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
+    check("rol").exists().notEmpty().trim().escape().isIn( ['Funcionario', 'Lider TIC', 'Tecnico']).withMessage("El rol no es válido"),
     check("telefono").optional().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
     check("password").optional().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
     check("aprobado").optional().isBoolean().withMessage("El estado de aprobación debe ser un valor booleano"),

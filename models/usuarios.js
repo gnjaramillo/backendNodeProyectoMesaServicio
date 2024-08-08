@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const usuarioSchema = new mongoose.Schema({
@@ -8,11 +9,12 @@ const usuarioSchema = new mongoose.Schema({
     correo: {
         type: String,
         required: true,
-        unique: true
+        unique: true, // validación de correo
+        match: /@sena\.edu\.co$/ // validación de dominio específico
     },
     rol: {
         type: String,
-        enum: ['funcionario Sena', 'admin tics', 'tecnico tics'],
+        enum: ['Funcionario', 'Lider TIC', 'Tecnico'],
         required: true
     },
     telefono: {
@@ -24,20 +26,31 @@ const usuarioSchema = new mongoose.Schema({
         required: true,
         select: false // para que al hacer una consulta, no se vea la contraseña
     },
-    aprobado: {
+    estado: {
         type: Boolean,
-        default: false
-    },
+        default: false // campo oculto, es por defecto false para técnico, los otros roles: true, no necesitan aprobación (estado de aprobación)
+    },   
     foto: {
-        type: mongoose.Schema.Types.ObjectId,  // ID del documento de la colección storage donde se almacena las img
-        ref: 'storage',
-        required: false // no es requerida
+        type: mongoose.Schema.Types.ObjectId, // ID del documento de la colección storage donde se almacena la imagen
+        ref: 'Storage',
+        required: false
     }
 }, {
     timestamps: true
 });
 
+// Middleware para establecer el valor de 'aprobado' según el rol
+usuarioSchema.pre('save', function(next) {
+    if (this.rol === 'tecnico') {
+        this.aprobado = false;
+    } else {
+        this.aprobado = true;
+    }
+    next();
+});
+
 module.exports = mongoose.model('Usuario', usuarioSchema);
+
 
 
 

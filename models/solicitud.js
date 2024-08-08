@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const solicitudSchema = new mongoose.Schema({
     usuario: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Usuario',
+        ref: 'Usuario', // traer nombre y correo 
         required: true
     },
-    ambienteDeFormacion: {
+    ambiente: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Ambiente',
         required: true
@@ -19,10 +19,17 @@ const solicitudSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    fechaDeRegistro: {
+    fecha: {
         type: Date,
         default: Date.now
+    },   
+    foto: {
+        type: mongoose.Schema.Types.ObjectId,  
+        ref: 'Storage',
+        required: false // es opcional
     }
+
+
 }, {
     timestamps: true
 });

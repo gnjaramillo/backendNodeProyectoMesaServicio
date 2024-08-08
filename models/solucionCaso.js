@@ -7,15 +7,20 @@ const solucionCasoSchema = new mongoose.Schema({
         required: true
     },
 
-    tipoSolucion: {
+    descripcionSolucion: {
         type: String,
         required: true
     },
-
+   
+    tipoCaso: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TipoDeCaso',
+        required: true
+    },
     evidencia: {
-        type: mongoose.Schema.Types.ObjectId,  // ID del documento de la colección storage donde se almacena las img
-        ref: 'storage',
-        required: false // no es requerida
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Storage',
+        required: function() { return this.estado === 'pendiente'; } // obligatorio si el estado es "pendiente"
     }
 }, 
 

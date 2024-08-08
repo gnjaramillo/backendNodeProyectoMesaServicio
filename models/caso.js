@@ -12,20 +12,16 @@ const casoSchema = new mongoose.Schema({
     },
     estado: {
         type: String,
-        enum: ['solicitado','asignado', 'en curso', 'pendiente', 'finalizado'],
-        required: true
-    },
-    tipo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TipoDeCaso',
-        required: true
-    },
-    archivo: {
-        type: String,
-        required: false
+        enum: ['solicitado', 'asignado', 'pendiente', 'finalizado', 'reasignacion solicitada'],
+        required: true,
+        default: 'solicitado'
     }
-}, {
+    
+}, 
+{
     timestamps: true
 });
 
 module.exports = mongoose.model('Caso', casoSchema);
+
+

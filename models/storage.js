@@ -8,9 +8,7 @@ const storageSchema=mongoose.Schema({
     filename:{
         type:String,
         required:true
-    },
-
-    
+    },    
 })
 
-module.exports = mongoose.model("storage", storageSchema)
+module.exports = mongoose.model("Storage", storageSchema)

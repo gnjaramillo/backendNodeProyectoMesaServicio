@@ -1,15 +1,11 @@
 const models = {
-    ambientesModel: require('./ambienteFormacion'),
-    casosModel: require('./caso'),
-    centroFormacionModel: require('./centroFormacion'),
-    centroFormacionUsuarioModel: require('./centroFormacionUsuarios'),
-    regionalModel: require('./regional'),
-    sedeSchema: require('./sede'),
-    solicitudesModel: require('./solicitudes'),
+    ambienteModel: require('./ambienteFormacion'),
+    casoModel: require('./caso'),
+    solicitudModel: require('./solicitud'),
     solucionCasoModel: require('./solucionCaso'),
     storageModel: require('./storage'),
     tipoCasoModel: require('./tipoCaso'),
-    usuariosModel: require('./usuarios'),
+    usuarioModel: require('./usuarios'),
 }
 
 module.exports = models

@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const dbConnect = require('./config/mongo')
-const multer = require('multer');
+// const multer = require('multer');
 
 
 // Creamos una instancia de la aplicación Express
@@ -15,8 +15,6 @@ app.use(express.json())
 // Middleware para analizar cuerpos de formularios URL-encoded
 app.use(express.urlencoded({ extended: true }));
 // Configuración de multer
-const upload = multer(); 
-app.use(upload.none());
 
 
 // los recursos publicos salen de la carpeta storage

@@ -1,23 +1,28 @@
+// controllers/storage.js
 
-const {storageModel} = require("../models") // aqui llama al index.js de models
+const { storageModel } = require("../models");
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
-    
-    //Crear un nuevo archivo y almacenarlo
-    const createStorage = async (req, res) => {
-        const {body, file}= req
-        console.log(file)
-       
-        const fileData = {
-            filename: file.filename,
-            url: `${PUBLIC_URL}/${file.filename}`,
-        }
+const createStorage = async (req, res) => {
+    const { file } = req;
+    if (!file) {
+        return res.status(400).send({ message: "No file uploaded" });
+    }
 
-        const data = await storageModel.create(fileData)
-        res.status(201).send({ message: "archivo creado", file });
+    const fileData = {
+        filename: file.filename,
+        url: `${PUBLIC_URL}/${file.filename}`
     };
-    
-    module.exports = { createStorage };
+
+    try {
+        const data = await storageModel.create(fileData);
+        res.status(201).send({ message: "File uploaded successfully", file: data });
+    } catch (error) {
+        res.status(500).send({ message: "Error uploading file", error });
+    }
+};
+
+module.exports = { createStorage };
     
 
 /*  Después de que Multer procesa la solicitud, añade una propiedad file al objeto req. 

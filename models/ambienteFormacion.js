@@ -4,11 +4,6 @@ const ambienteSchema = new mongoose.Schema({
     nombre: {
         type: String,
         required: true
-    },   
-    sede: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Sede',
-        required: true
     }
    
 }, {

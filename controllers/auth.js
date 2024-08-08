@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { encrypt, compare } = require("../utils/handlePassword");
-const { usuariosModel, storageModel } = require("../models"); // Asegúrate de importar todos los modelos necesarios
+const { usuarioModel, storageModel } = require("../models"); // Asegúrate de importar todos los modelos necesarios
 const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 
@@ -54,7 +54,7 @@ const registerCtrl = async (req, res) => {
             foto: fotoId
         };
 
-        const dataUser = await usuariosModel.create(userData);
+        const dataUser = await usuarioModel.create(userData);
         dataUser.password = undefined; // Ocultar la contraseña en la respuesta
 
         const data = {
@@ -67,7 +67,11 @@ const registerCtrl = async (req, res) => {
         console.error(error); // Log del error para depuración
         handleHttpError(res, "error al registrar el usuario");
     }
-}
+} 
+
+
+
+
 
 
 // loguear el usuario
@@ -76,7 +80,7 @@ const loginCtrl = async (req, res) => {
         const { correo, password } = req.body;
 
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuariosModel.findOne({ correo }).select('password username correo tipoUsuario');
+        const user = await usuarioModel.findOne({ correo }).select('password username correo tipoUsuario');
        
         console.log(user)
 
