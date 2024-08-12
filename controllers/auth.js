@@ -90,7 +90,7 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 
 const registerCtrl = async (req, res) => {
     try {
-        const { password, rol, ...rest } = req.body;
+        const { password, confirmPassword, rol, ...rest } = req.body;
         console.log("Rol recibido:", rol);
 
         // Verificar si ya existe un usuario con el rol de "Lider TIC"
@@ -101,10 +101,15 @@ const registerCtrl = async (req, res) => {
             }
         }
 
-        const passwordHash = await encrypt(password);
-        const body = { ...rest, password: passwordHash, rol };
+        if (confirmPassword !== password) {
+            return res.status(400).send({ message: "Las contraseñas no coinciden" });
+        }
 
-    
+        
+        const passwordHash = await encrypt(password);
+        const body = { ...rest, password: passwordHash, confirmPassword, rol };
+
+           
 
             // Buscar o guardar la foto por defecto en la colección storage
         let fileSaved = await storageModel.findOne({ filename: 'usuario-undefined.png' });
@@ -121,12 +126,20 @@ const registerCtrl = async (req, res) => {
         const dataUser = await usuarioModel.create(userData);
         dataUser.password = undefined; // Ocultar la contraseña en la respuesta
 
+
+
+
         const data = {
             token: await tokenSign(dataUser),
             user: dataUser
         };
 
-        res.send({message:`Usuario registrado exitosamente`, data });
+        const message = rol === 'Tecnico' 
+            ? "Usuario registrado exitosamente. Su cuenta está en espera de aprobación por el Líder TIC." 
+            : "Usuario registrado exitosamente.";
+
+        res.send({message, data });
+
     } catch (error) {
         if (error.code === 11000 && error.keyPattern  && error.keyPattern.correo) {
             return res.status(400).send({message:"correo ya se encuentra registrado"})
