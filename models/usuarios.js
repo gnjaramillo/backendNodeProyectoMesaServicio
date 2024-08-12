@@ -24,14 +24,14 @@ const usuarioSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        select: false // para que al hacer una consulta, no se vea la contraseña
-    },
+/*         select: false // para que al hacer una consulta, no se vea la contraseña
+ */  },
     estado: {
         type: Boolean,
         default: false // campo oculto, es por defecto false para técnico, los otros roles: true, no necesitan aprobación (estado de aprobación)
     },   
     foto: {
-        type: mongoose.Schema.Types.ObjectId, // ID del documento de la colección storage donde se almacena la imagen
+        type: mongoose.Schema.Types.ObjectId, // ID colección storage donde se almacena la imagen
         ref: 'Storage',
         required: false
     }
@@ -41,10 +41,10 @@ const usuarioSchema = new mongoose.Schema({
 
 // Middleware para establecer el valor de 'aprobado' según el rol
 usuarioSchema.pre('save', function(next) {
-    if (this.rol === 'tecnico') {
-        this.aprobado = false;
+    if (this.rol === 'Tecnico') {
+        this.estado = false;
     } else {
-        this.aprobado = true;
+        this.estado = true;
     }
     next();
 });
