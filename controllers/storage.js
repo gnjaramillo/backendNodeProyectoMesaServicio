@@ -16,9 +16,9 @@ const createStorage = async (req, res) => {
 
     try {
         const data = await storageModel.create(fileData);
-        res.status(201).send({ message: "File uploaded successfully", file: data });
+        res.status(201).send({ message: "archivo creado exitosamente", file: data });
     } catch (error) {
-        res.status(500).send({ message: "Error uploading file", error });
+        res.status(500).send({ message: "Error", error });
     }
 };
 

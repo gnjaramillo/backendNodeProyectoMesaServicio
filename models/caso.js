@@ -12,7 +12,7 @@ const casoSchema = new mongoose.Schema({
     },
     estado: {
         type: String,
-        enum: ['solicitado', 'asignado', 'pendiente', 'finalizado', 'reasignacion solicitada'],
+        enum: ['solicitado', 'asignado', 'pendiente', 'finalizado'],
         required: true,
         default: 'solicitado'
     }
