@@ -137,6 +137,26 @@ const deleteUsuarios = async (req, res) => {
     }
 };
 
+const cambiarEstado = async (req,res)=>{
+
+    const {id}=req.params
+
+    try {
+        const userFind = await usuarioModel.findById(id)
+
+        if(!userFind) return res.status(500).json({message:"el usuario que quieres cambiar el estado no existe"})
+
+        const usuarioEstadoAprobado = await userFind.findOneAndUpdate(id,estado=true)
+
+        res.status(200).json({message:"estado de usuario actualizado",usuarioEstado:usuarioEstadoAprobado})
+
+    } catch (error) {
+        
+    }
+
+
+}
+
 
 module.exports = { getUsuarios, postUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId };
 

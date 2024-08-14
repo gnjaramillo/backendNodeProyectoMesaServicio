@@ -6,6 +6,7 @@ const models = {
     storageModel: require('./storage'),
     tipoCasoModel: require('./tipoCaso'),
     usuarioModel: require('./usuarios'),
+    consecutivoCasoModel: require('./consecutivoCaso'),
 }
 
 module.exports = models

@@ -6,10 +6,12 @@ const casoSchema = new mongoose.Schema({
         ref: 'Solicitud',
         required: true
     },
-    codigo: {
+    
+    codigoCaso: {
         type: String,
         required: true
     },
+
     estado: {
         type: String,
         enum: ['solicitado', 'asignado', 'pendiente', 'finalizado'],
