@@ -1,5 +1,6 @@
-const { solicitudModel } = require("../models");
+const { solicitudModel, consecutivoCasoModel, casoModel, usuarioModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
+const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 
 const getSolicitud = async (req, res) => {
     try {
@@ -32,15 +33,38 @@ const getSolicitudId = async (req, res) => {
 };
 
 
-const postSolicitud = async (req, res) => {
+const crearSolicitud = async (req, res) => {
     const { body } = req;
+
     try {
-        const data = await solicitudModel.create(body);
-        res.send({ message: "solicitud registrado exitosamente", data });
+        const solicitudCreada = await solicitudModel.create(body);
+
+        // Generar el código del caso usando el modelo Consecutivo
+        const codigoCaso = await postConsecutivoCaso();
+
+        // Crear un nuevo caso con el código generado
+        const nuevoCaso = new casoModel({
+            solicitud: solicitudCreada._id,
+            codigoCaso: codigoCaso,
+            estado: 'solicitado'
+        });
+
+        const liderTic = await usuarioModel.findOne({ rol: 'Lider TIC' });
+        if (!liderTic) {
+            return res.status(500).send({ message: "No existe Líder TIC disponible" });
+        }
+
+        // Guardar el nuevo caso en la base de datos
+        const casoGuardado = await nuevoCaso.save();
+
+        res.status(201).send({ solicitud: solicitudCreada, caso: casoGuardado });
+
     } catch (error) {
-        handleHttpError(res, "Error al registrar el solicitud");
+        console.error(error);
+        handleHttpError(res, "Error al registrar solicitud");
     }
 };
+
 
 
 const updateSolicitud = async (req, res) => {
@@ -69,4 +93,4 @@ const deleteSolicitud = async (req, res) => {
     }
 };
 
-module.exports = { getSolicitud, getSolicitudId, postSolicitud, updateSolicitud, deleteSolicitud };
+module.exports = { getSolicitud, getSolicitudId, crearSolicitud, updateSolicitud, deleteSolicitud };
