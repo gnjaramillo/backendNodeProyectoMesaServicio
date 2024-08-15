@@ -17,6 +17,7 @@ const solucionCasoSchema = new mongoose.Schema({
         ref: 'TipoDeCaso',
         required: true
     },
+    
     evidencia: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Storage',

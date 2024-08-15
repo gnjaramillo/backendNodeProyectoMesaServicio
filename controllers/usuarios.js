@@ -18,6 +18,7 @@ const getUsuarios = async (req, res) => {
 };
 
 
+
 const getUsuariosId = async (req, res) => {
     try {
         const { id } = req.params;  
@@ -28,67 +29,6 @@ const getUsuariosId = async (req, res) => {
         res.send({ message: "Usuario consultado exitosamente", data });
     } catch (error) {
         handleHttpError(res, "Error al consultar el usuario");
-    }
-};
-
-
-const postUsuarios = async (req, res) => {
-    try {
-        const { password, ...rest } = req.body;
-        const file = req.file;
-        const passwordHash = await encrypt(password);
-        const body = { ...rest, password: passwordHash };
-
-        let fileRecord;
-        let fotoId;
-
-        // Verificar si se subió un archivo
-        if (!file) {
-            // Si no se sube una foto, utilizar la foto por defecto
-            const fileData = {
-                url: `${PUBLIC_URL}/usuario-undefined.png`, // url definida en controlador storage
-                filename: 'usuario-undefined.png'
-            };
-
-            console.log(fileData);
-
-            // Buscar o guardar la foto por defecto en la colección storage
-            let fileSaved = await storageModel.findOne({ filename: 'usuario-undefined.png' });
-            if (!fileSaved) {
-                fileSaved = await storageModel.create(fileData);
-            }
-            fotoId = fileSaved._id;
-        } else {
-            const fileData = {
-                url: `${PUBLIC_URL}/${file.filename}`,
-                filename: file.filename
-            };
-
-            console.log(fileData);
-
-            // Guardar el archivo en la colección storage
-            const fileSaved = await storageModel.create(fileData);
-            fotoId = fileSaved._id;
-        }
-
-        // Crear los datos del usuario incluyendo la referencia al archivo
-        const userData = {
-            ...body,
-            foto: fotoId
-        };
-
-        const dataUser = await usuarioModel.create(userData);
-        dataUser.password = undefined; // Ocultar la contraseña en la respuesta
-
-        const data = {
-            token: await tokenSign(dataUser),
-            user: dataUser
-        };
-
-        res.send({ data });
-    } catch (error) {
-        console.error(error); // Log del error para depuración
-        handleHttpError(res, "Error al registrar el usuario");
     }
 };
 
@@ -125,19 +65,73 @@ const updateUsuarios = async (req, res) => {
 };
 
 
-const deleteUsuarios = async (req, res) => {
-    const userId = req.params.id;
+/* const deleteUsuarios = async (req, res) => {
+    const usuarioId = req.params.id;
 
     try {
-        await usuarioModel.findOneAndDelete({ _id: userId });
-        res.send({ message: `Usuario ${userId} eliminado` });
+
+        const usuarioBuscado = await usuarioModel.findById(usuarioId).populate('foto');
+
+        if (!usuarioBuscado) {
+            return res.status(404).send({ message: "Usuario no encontrado" });
+        }
+
+        if (usuarioBuscado.foto) {
+            await usuarioModel.findOneAndDelete(usuarioBuscado.foto._id);
+            
+        }
+        //usuario-guisellajp@example.com.jpg
+
+        await usuarioModel.findOneAndDelete({_id:usuarioId});
+
+
+        res.send({ message: `Usuario ${usuarioId} eliminado` });
     } catch (error) {
         handleHttpError(res, "Error al consultar el usuario", 500);
 
     }
+}; */
+
+const fs = require('fs');
+const path = require('path');
+
+const deleteUsuarios = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        // Buscar el usuario para obtener el ID de la foto asociada
+        const user = await usuarioModel.findById(userId).populate('foto');
+        
+        if (!user) {
+            return res.status(404).send({ message: "Usuario no encontrado" });
+        }
+
+        // Eliminar la foto asociada si existe
+        if (user.foto) {
+            const filePath = path.join(__dirname, '../storage', user.foto.filename);
+            await storageModel.findByIdAndDelete(user.foto._id);
+
+            // Eliminar el archivo físico
+            fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.error("Error al eliminar el archivo físico:", err);
+                }
+            });
+        }
+
+        // Eliminar el usuario
+        await usuarioModel.findByIdAndDelete(userId);
+
+        res.send({ message: `Usuario ${userId} y su foto asociada han sido eliminados` });
+    } catch (error) {
+        handleHttpError(res, "Error al eliminar el usuario", 500);
+    }
 };
 
-const cambiarEstado = async (req,res)=>{
+
+
+
+/* const cambiarEstado = async (req,res)=>{
 
     const {id}=req.params
 
@@ -155,10 +149,10 @@ const cambiarEstado = async (req,res)=>{
     }
 
 
-}
+} */
 
 
-module.exports = { getUsuarios, postUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId };
+module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId };
 
 
 

@@ -1,4 +1,4 @@
-/* 
+
 // utils/handleStorage.js
 
 const path = require("path");
@@ -9,6 +9,7 @@ const storage = multer.diskStorage({
         const pathStorage = path.join(__dirname, "../storage");
         cb(null, pathStorage);
     },
+    
     filename: function (req, file, cb) {
         const extFile = file.originalname.split(".").pop();
         const filename = `file-${Date.now()}.${extFile}`;
@@ -18,11 +19,10 @@ const storage = multer.diskStorage({
 
 const uploadMiddleware = multer({ storage: storage });
 
-module.exports = uploadMiddleware; */
+module.exports = uploadMiddleware;
 
-// utils/handleStorage.js
 
-const path = require("path");
+/* const path = require("path");
 const multer = require("multer");
 
 // Sanitizar el correo para que sea válido como nombre de archivo
@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 
 const uploadMiddleware = multer({ storage: storage });
 
-module.exports = uploadMiddleware;
+module.exports = uploadMiddleware; */
 
 
 

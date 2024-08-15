@@ -1,12 +1,18 @@
-const { solicitudModel, consecutivoCasoModel, casoModel, usuarioModel } = require("../models");
+const { solicitudModel, storageModel, casoModel, usuarioModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
+const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
+
+
+
 
 const getSolicitud = async (req, res) => {
     try {
         const data = await solicitudModel.find({}).select('descripcion fecha')
             .populate('usuario', 'nombre')
-            .populate('ambiente', 'nombre'); 
+            .populate('ambiente', 'nombre')
+            .populate('foto')
+
         res.send({ data });
         console.log(data)
     } catch (error) {
@@ -20,8 +26,9 @@ const getSolicitudId = async (req, res) => {
         const { id } = req.params;
         const data = await solicitudModel.findById(id).select('descripcion fecha')
             .populate('usuario', 'nombre')
-            .populate('ambiente', 'nombre'); 
-
+            .populate('ambiente', 'nombre')
+            .populate('foto'); 
+            
         if (!data) {
             handleHttpError(res, "solicitud no encontrado");
             return;
@@ -33,11 +40,34 @@ const getSolicitudId = async (req, res) => {
 };
 
 
-const crearSolicitud = async (req, res) => {
-    const { body } = req;
 
+
+const crearSolicitud = async (req, res) => {
     try {
-        const solicitudCreada = await solicitudModel.create(body);
+        const { body } = req;
+        const file = req.file;
+        let fotoId;
+
+        // Si hay un archivo adjunto, guárdalo y obtén su ID
+        if (file) {
+            const fileData = {
+                filename: file.filename,
+                url: `${PUBLIC_URL}/${file.filename}`
+            };
+
+            console.log(fileData);
+
+            const fileSaved = await storageModel.create(fileData);
+            fotoId = fileSaved._id;
+        }
+
+        // Incluir la evidencia en la solicitud solo si se subió una foto
+        const dataSolicitud = {
+            ...body,
+            foto: fotoId // Solo incluye foto si existe
+        };
+
+        const solicitudCreada = await solicitudModel.create(dataSolicitud);
 
         // Generar el código del caso usando el modelo Consecutivo
         const codigoCaso = await postConsecutivoCaso();
@@ -57,7 +87,7 @@ const crearSolicitud = async (req, res) => {
         // Guardar el nuevo caso en la base de datos
         const casoGuardado = await nuevoCaso.save();
 
-        res.status(201).send({ solicitud: solicitudCreada, caso: casoGuardado });
+        res.status(201).send({  message:"registro de solicitud exitosa", solicitud: solicitudCreada, caso: casoGuardado });
 
     } catch (error) {
         console.error(error);

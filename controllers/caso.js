@@ -10,7 +10,8 @@ const getCaso = async (req, res) => {
                 select: 'usuario descripcion fechaDeRegistro',
                 populate: [
                     { path: 'usuario', select: 'nombre' },
-                    { path: 'ambiente', select: 'nombre' }
+                    { path: 'ambiente', select: 'nombre' },
+                    { path: 'foto', select: 'url filename' }
                 ]
             });
         res.send({ data });
@@ -32,7 +33,9 @@ const getCasoId = async (req, res) => {
                 select: 'usuario descripcion fechaDeRegistro',
                 populate: [
                     { path: 'usuario', select: 'nombre' },
-                    { path: 'ambiente', select: 'nombre' }
+                    { path: 'ambiente', select: 'nombre' },
+                    { path: 'foto', select: 'url filename' }
+
             ]
         });
 

@@ -10,83 +10,6 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 
 
 
-/* const registerCtrl = async (req, res) => {
-    try {
-        const { password, rol, ...rest } = req.body;
-        console.log("Rol recibido:", rol);
-
-        // Verificar si ya existe un usuario con el rol de "Lider TIC"
-        if (rol === 'Lider TIC') {
-            const liderExistente = await usuarioModel.findOne({ rol: 'Lider TIC' });
-            if (liderExistente) {
-                return res.status(400).send({ message: "Ya existe un usuario con el rol de Lider TIC. No se permiten múltiples registros con este rol." });
-            }
-        }
-
-        const file = req.file;
-        const passwordHash = await encrypt(password);
-        const body = { ...rest, password: passwordHash, rol };
-
-        let fileRecord;
-        let fotoId;
-
-        // Verificar si se subió un archivo
-        if (!file) {
-            // Si no se sube una foto, utilizar la foto por defecto
-            const fileData = {
-                url: `${PUBLIC_URL}/usuario-undefined.png`, //url definida en controlador storage
-                filename: 'usuario-undefined.png'
-            };
-
-            console.log(fileData);
-
-            // Buscar o guardar la foto por defecto en la colección storage
-            let fileSaved = await storageModel.findOne({ filename: 'usuario-undefined.png' });
-            if (!fileSaved) {
-                fileSaved = await storageModel.create(fileData);
-            }
-            fotoId = fileSaved._id;
-        } else {
-            const fileData = {
-                url: `${PUBLIC_URL}/${file.filename}`,
-                filename: file.filename
-            };
-
-            console.log(fileData);
-
-            // Guardar el archivo en la colección storage
-            const fileSaved = await storageModel.create(fileData);
-            fotoId = fileSaved._id;
-        }
-
-        // Crear usuario incluyendo foto
-        const userData = {
-            ...body,
-            foto: fotoId
-        };
-
-        const dataUser = await usuarioModel.create(userData);
-        dataUser.password = undefined; // Ocultar la contraseña en la respuesta
-
-        const data = {
-            token: await tokenSign(dataUser),
-            user: dataUser
-        };
-
-        res.send({message:`Usuario registrado exitosamente`, data });
-    } catch (error) {
-        if (error.code === 11000 && error.keyPattern  && error.keyPattern.correo) {
-            return res.status(400).send({message:"correo ya se encuentra registrado"})
-        }else{
-            handleHttpError(res, "error al registrar el usuario");
-            
-        }       
-    }
-}
-
- */
-
-
 
 const registerCtrl = async (req, res) => {
     try {
@@ -156,10 +79,18 @@ const loginCtrl = async (req, res) => {
     try {
         const { correo, password } = req.body;
 
+
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuarioModel.findOne({ correo }).select('password username correo tipoUsuario');
+        const user = await usuarioModel.findOne({ correo }).select('password  correo rol estado');
        
         console.log(user)
+
+        // Verificar si el usuario es Técnico y si su estado es false
+        if (user.rol === 'Tecnico' && user.estado === false) {
+            return res.status(403).send({ message: `Su registro se encuentra sujeto a aprobación
+                por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
+        }
+
 
         if (!user) {
             return handleHttpError(res, "usuario no existe", 404);
