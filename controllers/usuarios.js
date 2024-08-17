@@ -12,6 +12,7 @@ const getUsuarios = async (req, res) => {
     try {
         const data = await usuarioModel.find({}).populate('foto'); 
         res.send({ data });
+        console.log(data)
     } catch (error) {
         handleHttpError(res, "error al obtener datos", 500);
     }
@@ -65,35 +66,6 @@ const updateUsuarios = async (req, res) => {
 };
 
 
-/* const deleteUsuarios = async (req, res) => {
-    const usuarioId = req.params.id;
-
-    try {
-
-        const usuarioBuscado = await usuarioModel.findById(usuarioId).populate('foto');
-
-        if (!usuarioBuscado) {
-            return res.status(404).send({ message: "Usuario no encontrado" });
-        }
-
-        if (usuarioBuscado.foto) {
-            await usuarioModel.findOneAndDelete(usuarioBuscado.foto._id);
-            
-        }
-        //usuario-guisellajp@example.com.jpg
-
-        await usuarioModel.findOneAndDelete({_id:usuarioId});
-
-
-        res.send({ message: `Usuario ${usuarioId} eliminado` });
-    } catch (error) {
-        handleHttpError(res, "Error al consultar el usuario", 500);
-
-    }
-}; */
-
-const fs = require('fs');
-const path = require('path');
 
 const deleteUsuarios = async (req, res) => {
     const userId = req.params.id;
@@ -106,17 +78,9 @@ const deleteUsuarios = async (req, res) => {
             return res.status(404).send({ message: "Usuario no encontrado" });
         }
 
-        // Eliminar la foto asociada si existe
-        if (user.foto) {
-            const filePath = path.join(__dirname, '../storage', user.foto.filename);
+        // Eliminar la foto asociada si no es la predeterminada
+        if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
             await storageModel.findByIdAndDelete(user.foto._id);
-
-            // Eliminar el archivo físico
-            fs.unlink(filePath, (err) => {
-                if (err) {
-                    console.error("Error al eliminar el archivo físico:", err);
-                }
-            });
         }
 
         // Eliminar el usuario

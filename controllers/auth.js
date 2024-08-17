@@ -6,10 +6,9 @@ const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 
+
+
 // registrar el usuario http://localhost:3010/api/auth/register
-
-
-
 
 const registerCtrl = async (req, res) => {
     try {
@@ -74,7 +73,7 @@ const registerCtrl = async (req, res) => {
 }
 
 
-// loguear el usuario
+// loguear el usuario http://localhost:3010/api/auth/login
 const loginCtrl = async (req, res) => {
     try {
         const { correo, password } = req.body;

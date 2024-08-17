@@ -12,6 +12,9 @@ const storage = multer.diskStorage({
     
     filename: function (req, file, cb) {
         const extFile = file.originalname.split(".").pop();
+/*      const originalName = file.originalname.split(".")[0]; // Nombre original sin extensión
+        const filename = `${originalName}.${extFile}`; // Nombre único con marca de tiempo
+ */     
         const filename = `file-${Date.now()}.${extFile}`;
         cb(null, filename);
     }

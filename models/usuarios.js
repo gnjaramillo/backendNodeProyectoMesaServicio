@@ -9,9 +9,17 @@ const usuarioSchema = new mongoose.Schema({
     correo: {
         type: String,
         required: true,
+        unique: true, // Asegura que el correo electrónico sea único
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validación del formato de correo electrónico
+    },
+    
+/*     correo: {
+        type: String,
+        required: true,
         unique: true, // validación de correo
         match: /@sena\.edu\.co$/ // validación de dominio específico
-    },
+
+    }, */
     rol: {
         type: String,
         enum: ['Funcionario', 'Lider TIC', 'Tecnico'],
