@@ -2,9 +2,10 @@ const { solicitudModel, storageModel, casoModel, usuarioModel } = require("../mo
 const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
+const transporter = require('../utils/handleEmail')
 
 
-
+//http://localhost:3010/api/solicitud/
 
 const getSolicitud = async (req, res) => {
     try {
@@ -88,6 +89,24 @@ const crearSolicitud = async (req, res) => {
         const casoGuardado = await nuevoCaso.save();
 
         res.status(201).send({  message:"registro de solicitud exitosa", solicitud: solicitudCreada, caso: casoGuardado });
+
+
+        //enviar correo al funcionario que registro la solicitud, busco el funcionario asociado
+
+        const usuario = await usuarioModel.findById(dataSolicitud.usuario)
+
+        transporter.sendMail({
+            from: process.env.EMAIL,
+            to: usuario.correo,
+            subject: 'Registro Solicitud - Mesa de Servicio - CTPI-CAUCA',
+            html: `Cordial saludo, ${usuario.nombre}, nos permitimos \
+                informarle que su solicitud fue registrada en nuestro sistema con el número de caso \
+                ${codigoCaso}. <br><br> Su caso será gestionado en el menor tiempo posible, \
+                según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.\
+                <br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url:\
+                http://mesadeservicioctpicauca.sena.edu.co.`
+        });
+
 
     } catch (error) {
         console.error(error);
