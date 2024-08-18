@@ -16,8 +16,8 @@ const registerCtrl = async (req, res) => {
         console.log("Rol recibido:", rol);
 
         // Verificar si ya existe un usuario con el rol de "Lider TIC"
-        if (rol === 'Lider TIC') {
-            const liderExistente = await usuarioModel.findOne({ rol: 'Lider TIC' });
+        if (rol === 'lider') {
+            const liderExistente = await usuarioModel.findOne({ rol: 'lider' });
             if (liderExistente) {
                 return res.status(400).send({ message: "Ya existe un usuario con el rol de Lider TIC. No se permiten múltiples registros con este rol." });
             }
@@ -56,7 +56,7 @@ const registerCtrl = async (req, res) => {
             user: dataUser
         };
 
-        const message = rol === 'Tecnico' 
+        const message = rol === 'tecnico' 
             ? "Usuario registrado exitosamente. Su cuenta está en espera de aprobación por el Líder TIC." 
             : "Usuario registrado exitosamente.";
 
@@ -85,7 +85,7 @@ const loginCtrl = async (req, res) => {
         console.log(user)
 
         // Verificar si el usuario es Técnico y si su estado es false
-        if (user.rol === 'Tecnico' && user.estado === false) {
+        if (user.rol === 'tecnico' && user.estado === false) {
             return res.status(403).send({ message: `Su registro se encuentra sujeto a aprobación
                 por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
         }

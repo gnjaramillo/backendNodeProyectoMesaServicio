@@ -2,6 +2,9 @@ const { casoModel, storageModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
+
+
+
 const getCaso = async (req, res) => {
     try {
         const data = await casoModel.find({})
@@ -22,6 +25,27 @@ const getCaso = async (req, res) => {
 };
 
 
+
+const getCasosPendientes = async (req, res) =>{
+    try {
+        const data = await casoModel.find({estado: "solicitado"})
+        .populate({
+            path: 'solicitud',
+            select: 'usuario telefono descripcion fechaDeRegistro',
+            populate: [
+                { path: 'usuario', select: 'nombre correo' },
+                { path: 'ambiente', select: 'nombre' },
+                { path: 'foto', select: 'url filename' }
+            ]
+        });
+
+        res.send({ data });
+
+    } catch (error) {
+        handleHttpError(res, "error al obtener datos");
+        
+    }
+}
 
 
 const getCasoId = async (req, res) => {
@@ -111,4 +135,4 @@ const deleteCaso = async (req, res) => {
     }
 }
 
-module.exports = { getCaso, getCasoId, postCaso, updateCaso, deleteCaso };
+module.exports = { getCaso, getCasoId, postCaso, updateCaso, deleteCaso, getCasosPendientes };

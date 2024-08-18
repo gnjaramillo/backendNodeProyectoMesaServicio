@@ -80,7 +80,7 @@ const crearSolicitud = async (req, res) => {
             estado: 'solicitado'
         });
 
-        const liderTic = await usuarioModel.findOne({ rol: 'Lider TIC' });
+        const liderTic = await usuarioModel.findOne({ rol: 'lider' });
         if (!liderTic) {
             return res.status(500).send({ message: "No existe Líder TIC disponible" });
         }
@@ -127,6 +127,8 @@ const updateSolicitud = async (req, res) => {
         handleHttpError(res, "error al actualizar solicitud");
     }
 };
+
+
 
 const deleteSolicitud = async (req, res) => {
     const Id = req.params.id;
