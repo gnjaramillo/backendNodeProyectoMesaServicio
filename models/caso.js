@@ -17,6 +17,12 @@ const casoSchema = new mongoose.Schema({
         enum: ['solicitado', 'asignado', 'pendiente', 'finalizado'],
         required: true,
         default: 'solicitado'
+    },
+
+    tecnico:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: false
     }
     
 }, 

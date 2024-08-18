@@ -16,7 +16,7 @@ const validatorPostUsuarios = [
         }),
 
         // .matches(/@soy\.sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
-    check("rol").exists().notEmpty().trim().escape().isIn( ['Funcionario', 'Lider TIC', 'Tecnico']).withMessage("El rol no es válido"),
+    check("rol").exists().notEmpty().trim().escape().isIn( ['funcionario', 'lider', 'tecnico']).withMessage("El rol no es válido"),
     check("telefono").exists().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
     check("password").exists().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
     check("aprobado").optional().isBoolean().withMessage("El estado de aprobación debe ser un valor booleano"),
@@ -39,7 +39,7 @@ const validatorUpdateUsuarios = [
         }),
         
         //.matches(/@soy\.sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
-    check("rol").exists().notEmpty().trim().escape().isIn( ['Funcionario', 'Lider TIC', 'Tecnico']).withMessage("El rol no es válido"),
+    check("rol").exists().notEmpty().trim().escape().isIn( ['funcionario', 'lider', 'tecnico']).withMessage("El rol no es válido"),
     check("telefono").optional().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
     check("password").optional().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
     check("aprobado").optional().isBoolean().withMessage("El estado de aprobación debe ser un valor booleano"),

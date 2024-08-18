@@ -1,9 +1,8 @@
 const { usuarioModel, storageModel } = require("../models/index.js");
 const { handleHttpError } = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL;
-const { encrypt, compare } = require("../utils/handlePassword.js");
-const { tokenSign } = require("../utils/handleJwt.js");
-
+const fs = require('fs');
+const path = require('path');
 
 
 
@@ -32,6 +31,7 @@ const getUsuariosId = async (req, res) => {
         handleHttpError(res, "Error al consultar el usuario");
     }
 };
+
 
 
 const updateUsuarios = async (req, res) => {
@@ -71,7 +71,7 @@ const deleteUsuarios = async (req, res) => {
     const userId = req.params.id;
 
     try {
-        // Buscar el usuario para obtener el ID de la foto asociada
+        // Buscar el usuario y  la foto asociada
         const user = await usuarioModel.findById(userId).populate('foto');
         
         if (!user) {
@@ -81,12 +81,24 @@ const deleteUsuarios = async (req, res) => {
         // Eliminar la foto asociada si no es la predeterminada
         if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
             await storageModel.findByIdAndDelete(user.foto._id);
+
+            const pathStorage = path.join(__dirname, '../storage', data.filename);
+    
+            // Eliminar el archivo físico
+            fs.unlink(pathStorage, (err) => {
+                if (err) {
+                    console.error("Error al eliminar el archivo físico:", err);
+                    return handleHttpError(res, "Error al eliminar el archivo físico");
+                }
+            });
+
         }
 
-        // Eliminar el usuario
-        await usuarioModel.findByIdAndDelete(userId);
-
+        await usuarioModel.findByIdAndDelete(userId)
         res.send({ message: `Usuario ${userId} y su foto asociada han sido eliminados` });
+    
+    
+    
     } catch (error) {
         handleHttpError(res, "Error al eliminar el usuario", 500);
     }
@@ -95,28 +107,79 @@ const deleteUsuarios = async (req, res) => {
 
 
 
-/* const cambiarEstado = async (req,res)=>{
 
-    const {id}=req.params
-
+const listaTecnicosFalse = async (req,res)=>{
+    
     try {
-        const userFind = await usuarioModel.findById(id)
-
-        if(!userFind) return res.status(500).json({message:"el usuario que quieres cambiar el estado no existe"})
-
-        const usuarioEstadoAprobado = await userFind.findOneAndUpdate(id,estado=true)
-
-        res.status(200).json({message:"estado de usuario actualizado",usuarioEstado:usuarioEstadoAprobado})
-
+        const tecnicosFalse = await usuarioModel.find({ rol: 'tecnico', estado: false })
+        .select('nombre correo estado telefono');
+        
+        
+        if(!tecnicosFalse) {
+            return res.status(500).send({message:" no hay tecnicos pendientes de aprobación"})
+        }
+        res.status(200).json({message:"lista de tecnicos pendientes de aprobacion", tecnicosFalse})
+        
     } catch (error) {
+        handleHttpError(res, "Error al listar tecnicos pendientes de aprobacion", 500);
         
     }
+} 
 
 
-} */
+
+const aprobarTecnico = async (req,res) =>{
+    
+    const id = req.params.id
+    
+    try {
+        const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {new: true})
+        if (!tecnico) {
+            return res.status(404).send({ message: "Técnico no encontrado" });
+        }
+        
+        res.status(200).send({message: "Técnico aprobado exitosamente", tecnico })
+        
+        
+    } catch (error) {
+        handleHttpError(res, "Error al aprobar técnico", 500);
+    }      
+    
+}
 
 
-module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId };
+
+const eliminarTecnico = async (req, res) => {
+    const Id = req.params.id;
+
+    try {
+        // Buscar el usuario para obtener el ID de la foto asociada
+        const tecnico = await usuarioModel.findById(Id).populate('foto');
+        
+        if (!tecnico) {
+            return res.status(404).send({ message: "tecnico no encontrado" });
+        }
+
+        // Eliminar la foto asociada si no es la predeterminada
+        if (tecnico.foto && tecnico.foto.filename !== 'usuario-undefined.png') {
+            await storageModel.findByIdAndDelete(user.foto._id);
+        }
+
+        // Eliminar el usuario
+        await usuarioModel.findByIdAndDelete(userId);
+
+        res.send({ message: `tecnico ${Id} y su foto asociada han sido eliminados` });
+    } catch (error) {
+        handleHttpError(res, "Error al eliminar el usuario", 500);
+    }
+};
+
+
+
+
+
+
+module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico };
 
 
 

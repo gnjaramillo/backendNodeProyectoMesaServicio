@@ -22,7 +22,7 @@ const usuarioSchema = new mongoose.Schema({
     }, */
     rol: {
         type: String,
-        enum: ['Funcionario', 'Lider TIC', 'Tecnico'],
+        enum: ['funcionario', 'lider', 'tecnico'],
         required: true
     },
     telefono: {
@@ -49,7 +49,7 @@ const usuarioSchema = new mongoose.Schema({
 
 // Middleware para establecer el valor de 'aprobado' según el rol
 usuarioSchema.pre('save', function(next) {
-    if (this.rol === 'Tecnico') {
+    if (this.rol === 'tecnico') {
         this.estado = false;
     } else {
         this.estado = true;
