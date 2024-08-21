@@ -5,6 +5,7 @@ const { usuarioModel, storageModel } = require("../models"); // Asegúrate de im
 const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
+const jwt = require("jsonwebtoken");
 
 
 
@@ -78,22 +79,23 @@ const loginCtrl = async (req, res) => {
     try {
         const { correo, password } = req.body;
 
-
+        console.log(correo)
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuarioModel.findOne({ correo }).select('password  correo rol estado');
+        const user = await usuarioModel.findOne({ correo });
+        if (!user) return handleHttpError(res, "usuario no existe", 404);
        
         console.log(user)
 
         // Verificar si el usuario es Técnico y si su estado es false
+        /*
         if (user.rol === 'Tecnico' && user.estado === false) {
             return res.status(403).send({ message: `Su registro se encuentra sujeto a aprobación
                 por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
         }
+        */
 
 
-        if (!user) {
-            return handleHttpError(res, "usuario no existe", 404);
-        }
+        
 
         // Comparar la contraseña proporcionada con la almacenada
         const passwordSave = user.password;
@@ -123,7 +125,6 @@ const loginCtrl = async (req, res) => {
 
         res.json({  message: "Usuario ha ingresado exitosamente", dataUser});
     } catch (error) {
-        console.log(error)
         res.status(500).json({
             message: "Error al registrar el usuario.",
             error: error.message
@@ -133,8 +134,35 @@ const loginCtrl = async (req, res) => {
 };
 
 
+const verifyToken = async (req, res) => {
 
-module.exports = {registerCtrl, loginCtrl }
+    const { token } = req.cookies;
+
+    try {
+
+        if(!token) return res.status(400).json({message: "Sin autorizacion"});
+
+        jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+            if(err) return res.status(400).json({message:err});
+
+            const foundUser = await usuarioModel.findOne({_id: user._id});
+            if (!foundUser) return res.status(400).json({message: "Usuario no encontrado."});
+            
+            return res.status(200).json(foundUser);
+            
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al verificar el token",
+            error: error.message
+        });
+    }
+}
+
+
+
+module.exports = {registerCtrl, loginCtrl, verifyToken }
 
 
 

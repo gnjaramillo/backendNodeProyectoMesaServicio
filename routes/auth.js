@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { validatorRegister, validatorLogin } = require("../validators/auth");
 const uploadMiddleware = require("../utils/handleStorage");
-const {registerCtrl, loginCtrl} = require("../controllers/auth")
+const {registerCtrl, loginCtrl, verifyToken} = require("../controllers/auth")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 
 
@@ -10,8 +10,9 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 // router.post("/register", uploadMiddleware.single("foto"), validatorRegister, registerCtrl)
 router.post("/register", uploadMiddleware.single("foto"), registerCtrl)
 
-router.post("/login", validatorLogin, loginCtrl)
+router.post("/login", loginCtrl)
 
+router.get('/verify-token', verifyToken);
 
 module.exports = router;
 
