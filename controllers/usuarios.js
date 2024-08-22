@@ -1,8 +1,11 @@
 const { usuarioModel, storageModel } = require("../models/index.js");
+const { encrypt, compare } = require("../utils/handlePassword");
 const { handleHttpError } = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL;
 const fs = require('fs');
 const path = require('path');
+const transporter = require('../utils/handleEmail')
+
 
 
 
@@ -40,7 +43,48 @@ const updateUsuarios = async (req, res) => {
     const file = req.file;
 
     try {
+        // no pueden ser editados en el perfil
+        delete body.nombre;
+        delete body.rol;
+        delete body.correo;
+
         let updatedData = { ...body };
+
+        // Buscar el usuario y  la foto asociada
+        const user = await usuarioModel.findById(userId).populate('foto');
+        
+        if (!user) {
+            return res.status(404).send({ message: "Usuario no encontrado" });
+        }
+
+        // Eliminar la foto asociada si no es la predeterminada
+        if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
+            await storageModel.findByIdAndDelete(user.foto._id);
+
+            const pathStorage = path.join(__dirname, '../storage', data.filename);
+    
+            // Eliminar el archivo físico
+            fs.unlink(pathStorage, (err) => {
+                if (err) {
+                    console.error("Error al eliminar el archivo físico:", err);
+                    return handleHttpError(res, "Error al eliminar el archivo físico");
+                }
+            });
+
+        }
+
+        // Manejo de contraseña
+        if (body.password) {
+            const { confirmPassword, password } = body;
+
+            //  nueva contraseña y la confirmación coincidan
+            if (confirmPassword !== password) {
+                return res.status(401).send({ message: "Las contraseñas no coinciden" });
+            }
+
+            // Encriptar la nueva contraseña
+            updatedData.password = await encrypt(password);
+        }
 
         // Si se sube un archivo, agregar la URL de la foto a los datos actualizados
         if (file) {
@@ -49,10 +93,11 @@ const updateUsuarios = async (req, res) => {
                 url: `${PUBLIC_URL}/${file.filename}`,
                 filename: file.filename
             };
-            const fileRecord = await storageModel.create(fileData);
+
+            const fileSaved = await storageModel.create(fileData);
 
             // Actualizar el campo 'foto' con el ID del archivo guardado
-            updatedData.foto = fileRecord._id;
+            updatedData.foto = fileSaved._id;
         }
 
         const data = await usuarioModel.findOneAndUpdate({ _id: userId }, updatedData, { new: true });
@@ -129,18 +174,17 @@ const listaTecnicosFalse = async (req,res)=>{
 
 
 const aprobarTecnico = async (req,res) =>{
-    
     const id = req.params.id
     
     try {
         const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {new: true})
         if (!tecnico) {
             return res.status(404).send({ message: "Técnico no encontrado" });
-        }
-        
+        }        
         res.status(200).send({message: "Técnico aprobado exitosamente", tecnico })
-        
-        
+             
+
+
     } catch (error) {
         handleHttpError(res, "Error al aprobar técnico", 500);
     }      
@@ -149,7 +193,7 @@ const aprobarTecnico = async (req,res) =>{
 
 
 
-const eliminarTecnico = async (req, res) => {
+const denegarTecnico = async (req, res) => {
     const Id = req.params.id;
 
     try {
@@ -162,11 +206,20 @@ const eliminarTecnico = async (req, res) => {
 
         // Eliminar la foto asociada si no es la predeterminada
         if (tecnico.foto && tecnico.foto.filename !== 'usuario-undefined.png') {
-            await storageModel.findByIdAndDelete(user.foto._id);
+            await storageModel.findByIdAndDelete(tecnico.foto._id);
+            // Eliminar el archivo físico
+
+            const pathStorage = path.join(__dirname, '../storage', tecnico.foto.filename);
+            fs.unlink(pathStorage, (err) => {
+                if (err) {
+                    console.error("Error al eliminar el archivo físico:", err);
+                    return handleHttpError(res, "Error al eliminar el archivo físico");
+                }
+            });
         }
 
         // Eliminar el usuario
-        await usuarioModel.findByIdAndDelete(userId);
+        await usuarioModel.findByIdAndDelete(Id);
 
         res.send({ message: `tecnico ${Id} y su foto asociada han sido eliminados` });
     } catch (error) {
@@ -179,7 +232,7 @@ const eliminarTecnico = async (req, res) => {
 
 
 
-module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico };
+module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico, denegarTecnico };
 
 
 

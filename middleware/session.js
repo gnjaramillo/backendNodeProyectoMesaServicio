@@ -1,15 +1,18 @@
+// middleware para verificar que la persona halla iniciado sesion con su token
+
 const {handleHttpError} = require("../utils/handleError")
 const {verifyToken} = require("../utils/handleJwt")
+const {usuarioModel} = require("../models")
 
 const authMiddleware = async (req, res, next) => {
     try {
         // capturar el token de la base de datos
 
         if (!req.headers.authorization) {
-            handleHttpError(res, "error en inicio de sesion", 401);
+            handleHttpError(res, "error en inicio de sesion, no cuenta con token", 401);
             return
         }
-        
+                
         const token = req.headers.authorization.split(" ").pop()
         const dataToken = await verifyToken(token)
 
@@ -18,13 +21,16 @@ const authMiddleware = async (req, res, next) => {
             return
         }
 
-        next()
+        // para saber que usuario hizo determinada peticion
 
+        const usuario = await usuarioModel.findById(dataToken._id)
+        req.usuario = usuario
+
+        next()
         
     } catch (error) {
         return handleHttpError(res, "error en inicio de sesion", 401);
-    }
-    
+    }    
 }
 module.exports = authMiddleware
 

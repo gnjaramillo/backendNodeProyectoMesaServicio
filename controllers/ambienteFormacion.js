@@ -4,8 +4,10 @@ const {handleHttpError} = require("../utils/handleError")
 
 const getAmbiente = async (req, res) => {
     try {
+        // la const usuario me permite saber quien hace la peticion
+        const usuario = req.usuario
         const data = await ambienteModel.find({})
-        res.send({data})    
+        res.send({data, usuario})    
 
     } catch (error) {
         handleHttpError(res, "error al obtener datos de ambiente de formación")
