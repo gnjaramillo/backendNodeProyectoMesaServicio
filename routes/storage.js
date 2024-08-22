@@ -3,13 +3,15 @@
 const express = require("express");
 const router = express.Router();
 const uploadMiddleware = require("../utils/handleStorage");
+// const authMiddleware = require('../middleware/session')
+
 const { createStorage, getStorage, getStorageId, deleteStorage, updateStorage  } = require("../controllers/storage");
 
-router.get("/",  getStorage);
-router.get("/:id", getStorageId);
-router.post("/", uploadMiddleware.single('archivo'), createStorage);
-router.put("/:id", uploadMiddleware.single('archivo'), updateStorage);
-router.delete("/:id",  deleteStorage);
+router.get("/",   getStorage);
+router.get("/:id",   getStorageId);
+router.post("/", uploadMiddleware.single('archivo'),  createStorage);
+router.put("/:id", uploadMiddleware.single('archivo'),  updateStorage);
+router.delete("/:id",    deleteStorage);
 
 
 

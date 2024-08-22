@@ -80,11 +80,7 @@ const crearSolicitud = async (req, res) => {
             estado: 'solicitado'
         });
 
-        const liderTic = await usuarioModel.findOne({ rol: 'lider' });
-        if (!liderTic) {
-            return res.status(500).send({ message: "No existe Líder TIC disponible" });
-        }
-
+       
         // Guardar el nuevo caso en la base de datos
         const casoGuardado = await nuevoCaso.save();
 

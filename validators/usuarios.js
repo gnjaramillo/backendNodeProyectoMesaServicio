@@ -1,62 +1,40 @@
-const { check } = require("express-validator");
+const { check, body  } = require("express-validator");
 const validateResults = require("../utils/handleValidator");
 
-
-const validatorPostUsuarios = [
-    check("nombre").exists().notEmpty().trim().escape().withMessage("El nombre es requerido"),
-    check("correo")
-        .exists().notEmpty().isEmail().normalizeEmail().withMessage("El correo electrónico no es válido")
-        .custom(value => {
-            // Verificar que el correo electrónico tenga el formato correcto
-            const atSymbolIndex = value.indexOf('@');
-            if (atSymbolIndex === -1 || atSymbolIndex === 0 || atSymbolIndex === value.length - 1) {
-                throw new Error('El correo electrónico debe contener un símbolo @ y un dominio válido.');
-            }
-            return true;
-        }),
-
-        // .matches(/@soy\.sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
-    check("rol").exists().notEmpty().trim().escape().isIn( ['funcionario', 'lider', 'tecnico']).withMessage("El rol no es válido"),
-    check("telefono").exists().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
-    check("password").exists().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
-    check("aprobado").optional().isBoolean().withMessage("El estado de aprobación debe ser un valor booleano"),
-    (req, res, next) => {
-        validateResults(req, res, next); // Usa validateResults como middleware de validación
-    }
-];
-
 const validatorUpdateUsuarios = [
-    check("nombre").optional().notEmpty().trim().escape().withMessage("El nombre es requerido"),
-    check("correo")
-        .exists().notEmpty().isEmail().normalizeEmail().withMessage("El correo electrónico no es válido")
-        .custom(value => {
-            // Verificar que el correo electrónico tenga el formato correcto
-            const atSymbolIndex = value.indexOf('@');
-            if (atSymbolIndex === -1 || atSymbolIndex === 0 || atSymbolIndex === value.length - 1) {
-                throw new Error('El correo electrónico debe contener un símbolo @ y un dominio válido.');
-            }
-            return true;
-        }),
-        
-        //.matches(/@soy\.sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
-    check("rol").exists().notEmpty().trim().escape().isIn( ['funcionario', 'lider', 'tecnico']).withMessage("El rol no es válido"),
+    // No permite edición de 'nombre', 'correo' y 'rol' eliminando sus validaciones
     check("telefono").optional().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
     check("password").optional().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
-    check("aprobado").optional().isBoolean().withMessage("El estado de aprobación debe ser un valor booleano"),
+     // Validación de confirmPassword
+    body('confirmPassword')
+     .optional()
+     .custom((value, { req }) => {
+         if (value !== req.body.password) {
+             throw new Error('Las contraseñas no coinciden');
+         }
+         return true;
+     }),
     (req, res, next) => {
+        //  no se envíen `nombre`, `correo`, ni `rol`
+        const camposDeshabilitados = ["nombre", "correo", "rol"];
+        for (const campo of camposDeshabilitados) {
+            if (req.body[campo]) {
+                return res.status(400).send({ message: `No se permite actualizar el campo ${campo}` });
+            }
+        }
         validateResults(req, res, next); 
     }
 ];
 
-
-const validatorPostUsuariosId = [
+const validatorGetUsuariosId = [
     check("id").isMongoId().exists().notEmpty().trim().escape().withMessage("El id es requerido"),
     (req, res, next) => {
         validateResults(req, res, next); 
     }
 ];
 
-module.exports = { validatorPostUsuarios, validatorUpdateUsuarios, validatorPostUsuariosId };
+module.exports = { validatorUpdateUsuarios, validatorGetUsuariosId };
+
 
 /* Las validaciones alidar y sanitizar los datos de las solicitudes HTTP. 
 Estas validaciones se aplican antes de que los datos lleguen a tu base 

@@ -1,20 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico } = require("../controllers/usuarios");
+const { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico, denegarTecnico } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
-const { validatorPostUsuarios, validatorUpdateUsuarios, validatorPostUsuariosId } = require("../validators/usuarios");
+// const authMiddleware = require('../middleware/session') 
+
+const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validators/usuarios");
 
 // http://localhost:3010/api/usuarios/
 
+// Rutas específicas para técnicos
 router.put("/:id/aprobarTecnico", aprobarTecnico);
+router.put("/:id/denegarTecnico", denegarTecnico);
 router.get("/tecnicosFalse", listaTecnicosFalse);
+
+// Rutas generales de usuarios
 router.get("/", getUsuarios);
-router.get("/:id", validatorPostUsuariosId, getUsuariosId);
+router.get("/:id", validatorGetUsuariosId, getUsuariosId);
 router.put("/:id", uploadMiddleware.single('foto'), validatorUpdateUsuarios, updateUsuarios);
 router.delete("/:id", deleteUsuarios);
 
 module.exports = router;
 
-/* l orden de tus rutas en el archivo de rutas refleje la 
+/* El orden de tus rutas debe reflejar la 
 especificidad de los endpoints, colocando las rutas más
  específicas antes de las más generales para evitar conflictos. */

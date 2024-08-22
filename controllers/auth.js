@@ -24,7 +24,7 @@ const registerCtrl = async (req, res) => {
         }
 
         if (confirmPassword !== password) {
-            return res.status(400).send({ message: "Las contraseñas no coinciden" });
+            return res.status(401).send({ message: "Las contraseñas no coinciden" });
         }
 
         
@@ -47,9 +47,6 @@ const registerCtrl = async (req, res) => {
 
         const dataUser = await usuarioModel.create(userData);
         dataUser.password = undefined; // Ocultar la contraseña en la respuesta
-
-
-
 
         const data = {
             token: await tokenSign(dataUser),
@@ -80,9 +77,12 @@ const loginCtrl = async (req, res) => {
 
 
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuarioModel.findOne({ correo }).select('password  correo rol estado');
+        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado');
        
         console.log(user)
+        if (!user) {
+            return handleHttpError(res, "usuario no existe", 404);
+        }
 
         // Verificar si el usuario es Técnico y si su estado es false
         if (user.rol === 'tecnico' && user.estado === false) {
@@ -91,16 +91,11 @@ const loginCtrl = async (req, res) => {
         }
 
 
-        if (!user) {
-            return handleHttpError(res, "usuario no existe", 404);
-        }
 
         // Comparar la contraseña proporcionada con la almacenada
         const passwordSave = user.password;
         const check = await compare(password, passwordSave);
 
-        console.log("password recibido:", password);
-        console.log("Password almacenada:", passwordSave);
 
 
         if (!check) {
@@ -108,7 +103,8 @@ const loginCtrl = async (req, res) => {
         }
 
         // Si todo está bien, se devuelve el token de sesión y la data del usuario
-        user.set('password', undefined, {strict:false}) // para q no devuelva la contraseña
+
+        user.set('password', undefined, {strict:false}) // oculta contraseña
         const dataUser = {
             token: await tokenSign(user),
             user
@@ -136,23 +132,14 @@ esquema de Mongoose tiene restricciones estrictas.
 
 
 /* El error de clave duplicada en MongoDB genera un código 
-de error 11000. Usamos este código para identificar que el 
-error se debe a un intento de insertar un correo electrónico 
-que ya existe en la base de datos.
- */
-
-
-/* error.keyPattern:
+de error 11000.
 
 keyPattern es una propiedad del objeto de error que contiene un objeto 
-con los campos que causaron la violación de la unicidad. Por ejemplo, 
-si intentas insertar un correo electrónico duplicado, keyPattern 
+con los campos que causaron la violación de la unicidad.  keyPattern 
 contendrá una propiedad llamada correo.
 error.keyPattern.correo:
 
 error.keyPattern.correo es una verificación adicional para asegurarse 
 de que el campo específico que causó el error de duplicación 
-sea el correo electrónico. Si keyPattern contiene una propiedad 
-correo, significa que la violación de unicidad ocurrió en ese campo 
-específico.
+sea el correo electrónico. .
  */

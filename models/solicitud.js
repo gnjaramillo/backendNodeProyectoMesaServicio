@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const moment = require('moment'); // npm install moment
 
 const solicitudSchema = new mongoose.Schema({
     usuario: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Usuario', // traer nombre y correo 
+        ref: 'Usuario',
         required: true
     },
     ambiente: {
@@ -26,12 +27,17 @@ const solicitudSchema = new mongoose.Schema({
     foto: {
         type: mongoose.Schema.Types.ObjectId,  
         ref: 'Storage',
-        required: false // es opcional
+        required: false
     }
-
-
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+        virtuals: true,
+        transform: function (doc, ret) {
+            ret.fecha = moment(ret.fecha).format('DD-MM-YYYY HH:mm');
+            return ret;
+        }
+    }
 });
 
 module.exports = mongoose.model('Solicitud', solicitudSchema);

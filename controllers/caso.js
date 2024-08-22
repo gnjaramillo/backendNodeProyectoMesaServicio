@@ -10,7 +10,7 @@ const getCaso = async (req, res) => {
         const data = await casoModel.find({})
             .populate({
                 path: 'solicitud',
-                select: 'usuario descripcion fechaDeRegistro',
+                select: 'usuario descripcion fecha',
                 populate: [
                     { path: 'usuario', select: 'nombre' },
                     { path: 'ambiente', select: 'nombre' },
@@ -25,27 +25,29 @@ const getCaso = async (req, res) => {
 };
 
 
-
-const getCasosPendientes = async (req, res) =>{
+// http://localhost:3010/api/caso/pendientes
+const getCasosPendientes = async (req, res) => {
     try {
-        const data = await casoModel.find({estado: "solicitado"})
-        .populate({
-            path: 'solicitud',
-            select: 'usuario telefono descripcion fechaDeRegistro',
-            populate: [
-                { path: 'usuario', select: 'nombre correo' },
-                { path: 'ambiente', select: 'nombre' },
-                { path: 'foto', select: 'url filename' }
-            ]
-        });
+        const data = await casoModel.find({ estado: "solicitado" })
+            .select('estado')  
+            .populate({
+                path: 'solicitud',
+                select: 'usuario telefono descripcion fecha foto ambiente',  
+                populate: [
+                    { path: 'usuario', select: 'nombre correo' },
+                    { path: 'ambiente', select: 'nombre' },
+                    { path: 'foto', select: 'url' }  
+                ]
+            });
 
         res.send({ data });
 
     } catch (error) {
         handleHttpError(res, "error al obtener datos");
-        
     }
-}
+};
+
+
 
 
 const getCasoId = async (req, res) => {

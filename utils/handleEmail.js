@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
  */
 
 
-require('dotenv').config();
+/* require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -28,8 +28,30 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-module.exports = transporter; 
+module.exports = transporter;  */
 
 
 
-  
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+module.exports = {
+  sendMail: async (mailOptions) => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.office365.com',
+      port: 587,
+      secure: false, // o 'STARTTLS'
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    });
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Correo electrónico enviado');
+    });
+  }
+};  

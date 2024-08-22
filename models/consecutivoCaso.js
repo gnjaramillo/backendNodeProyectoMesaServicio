@@ -1,18 +1,19 @@
-const mongoose = require('mongoose')
+
+const mongoose = require('mongoose');
 
 const consecutivoCasoSchema = new mongoose.Schema({
-
-    year:{
-        type: Number,
-        required:true,
-        unique:true
+    yearMonth: {
+        type: String, //  "YYYY-MM"
+        required: true,
+        unique: true
     },
-
-    sequence:{
+    sequence: {
         type: Number,
-        required:true,
-        default:1
+        required: true,
+        default: 1
     }
-})
+}, {
+    timestamps: true
+});
 
 module.exports = mongoose.model('Consecutivo', consecutivoCasoSchema);
