@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
     
     filename: function (req, file, cb) {
         const extFile = file.originalname.split(".").pop();
-/*      const originalName = file.originalname.split(".")[0]; // Nombre original sin extensión
+/*      
+        const originalName = file.originalname.split(".")[0]; // Nombre original sin extensión
         const filename = `${originalName}.${extFile}`; // Nombre único con marca de tiempo
  */     
         const filename = `file-${Date.now()}.${extFile}`;
@@ -25,28 +26,7 @@ const uploadMiddleware = multer({ storage: storage });
 module.exports = uploadMiddleware;
 
 
-/* const path = require("path");
-const multer = require("multer");
 
-// Sanitizar el correo para que sea válido como nombre de archivo
-const sanitizeEmail = (email) => email.replace(/[^a-zA-Z0-9]/g, '_');
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const pathStorage = path.join(__dirname, "../storage");
-        cb(null, pathStorage);
-    },
-    filename: function (req, file, cb) {
-        const userEmail = req.body.correo ? sanitizeEmail(req.body.correo) : 'default';
-        const extFile = file.originalname.split(".").pop();
-        const filename = `${userEmail}.${extFile}`;
-        cb(null, filename);
-    }
-});
-
-const uploadMiddleware = multer({ storage: storage });
-
-module.exports = uploadMiddleware; */
 
 
 
