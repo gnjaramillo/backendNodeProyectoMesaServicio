@@ -1,4 +1,4 @@
-const { solicitudModel, storageModel, casoModel, usuarioModel } = require("../models");
+const { solicitudModel, storageModel, usuarioModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
@@ -9,10 +9,10 @@ const transporter = require('../utils/handleEmail')
 
 const getSolicitud = async (req, res) => {
     try {
-        const data = await solicitudModel.find({}).select('descripcion fecha')
+        const data = await solicitudModel.find({}).select('descripcion fecha estado')
             .populate('usuario', 'nombre')
             .populate('ambiente', 'nombre')
-            .populate('foto')
+            .populate('foto', 'url filename')
 
         res.send({ data });
         console.log(data)
@@ -22,14 +22,15 @@ const getSolicitud = async (req, res) => {
 };
 
 
+
 const getSolicitudId = async (req, res) => {
     try {
         const { id } = req.params;
-        const data = await solicitudModel.findById(id).select('descripcion fecha')
-            .populate('usuario', 'nombre')
-            .populate('ambiente', 'nombre')
-            .populate('foto'); 
-            
+        const data = await solicitudModel.find({}).select('descripcion fecha estado')
+        .populate('usuario', 'nombre')
+        .populate('ambiente', 'nombre')
+        .populate('foto', 'url'); 
+        
         if (!data) {
             handleHttpError(res, "solicitud no encontrado");
             return;
@@ -42,6 +43,22 @@ const getSolicitudId = async (req, res) => {
 
 
 
+// http://localhost:3010/api/solicitud/pendientes
+const getSolicitudesPendientes = async (req, res) =>{
+
+    try {
+        const data = await solicitudModel.find({estado: 'solicitado'})        
+        .populate('usuario', 'nombre')
+        .populate('ambiente', 'nombre')
+        .populate('foto', 'url');
+
+        res.status(200).json({ data });
+        
+    } catch (error) {
+        handleHttpError(res, "error al obtener datos");
+    }
+
+}
 
 const crearSolicitud = async (req, res) => {
     try {
@@ -62,29 +79,22 @@ const crearSolicitud = async (req, res) => {
             fotoId = fileSaved._id;
         }
 
-        // Incluir la evidencia en la solicitud solo si se subió una foto
-        const dataSolicitud = {
-            ...body,
-            foto: fotoId // Solo incluye foto si existe
-        };
-
-        const solicitudCreada = await solicitudModel.create(dataSolicitud);
-
         // Generar el código del caso usando el modelo Consecutivo
         const codigoCaso = await postConsecutivoCaso();
 
-        // Crear un nuevo caso con el código generado
-        const nuevoCaso = new casoModel({
-            solicitud: solicitudCreada._id,
+
+        // Incluir la evidencia en la solicitud solo si se subió una foto
+        const dataSolicitud = {
+            ...body,
+            foto: fotoId, // Solo incluye foto si existe
             codigoCaso: codigoCaso,
             estado: 'solicitado'
-        });
+        };
 
-       
-        // Guardar el nuevo caso en la base de datos
-        const casoGuardado = await nuevoCaso.save();
+        const solicitudCreada = await solicitudModel.create(dataSolicitud);
+   
 
-        res.status(201).send({  message:"registro de solicitud exitosa", solicitud: solicitudCreada, caso: casoGuardado });
+        res.status(201).send({  message:"registro de solicitud exitosa", solicitud: solicitudCreada });
 
 
         //enviar correo al funcionario que registro la solicitud, busco el funcionario asociado
@@ -140,4 +150,4 @@ const deleteSolicitud = async (req, res) => {
     }
 };
 
-module.exports = { getSolicitud, getSolicitudId, crearSolicitud, updateSolicitud, deleteSolicitud };
+module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, updateSolicitud, deleteSolicitud };

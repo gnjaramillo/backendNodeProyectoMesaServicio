@@ -33,7 +33,6 @@ const getStorage = async (req,res) =>{
 
         const data = await storageModel.find({})
         res.send({data})
-        console.log(data)
         
     } catch (error) {
         handleHttpError(res, "error al obtener datos");

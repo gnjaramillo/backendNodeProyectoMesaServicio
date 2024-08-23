@@ -35,11 +35,6 @@ const validatorLogin = [
     }
 ];
 
-const validateId = [
-    check('id').isMongoId().withMessage('ID de usuario no válido'),
-    (req, res, next) => {
-        validateResults(req, res, next);
-    }
-];
 
-module.exports = { validatorRegister, validatorLogin, validateId };
+
+module.exports = { validatorRegister, validatorLogin };

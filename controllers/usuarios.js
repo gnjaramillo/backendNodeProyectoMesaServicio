@@ -14,7 +14,6 @@ const getUsuarios = async (req, res) => {
     try {
         const data = await usuarioModel.find({}).populate('foto'); 
         res.send({ data });
-        console.log(data)
     } catch (error) {
         handleHttpError(res, "error al obtener datos", 500);
     }
@@ -36,6 +35,7 @@ const getUsuariosId = async (req, res) => {
 };
 
 
+// gestionar cuenta, actualizar datos de perfil
 
 const updateUsuarios = async (req, res) => {
     const userId = req.params.id;
@@ -61,7 +61,7 @@ const updateUsuarios = async (req, res) => {
         if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
             await storageModel.findByIdAndDelete(user.foto._id);
 
-            const pathStorage = path.join(__dirname, '../storage', data.filename);
+            const pathStorage = path.join(__dirname, '../storage', user.foto.filename);
     
             // Eliminar el archivo físico
             fs.unlink(pathStorage, (err) => {
@@ -127,7 +127,7 @@ const deleteUsuarios = async (req, res) => {
         if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
             await storageModel.findByIdAndDelete(user.foto._id);
 
-            const pathStorage = path.join(__dirname, '../storage', data.filename);
+            const pathStorage = path.join(__dirname, '../storage', user.foto.filename);
     
             // Eliminar el archivo físico
             fs.unlink(pathStorage, (err) => {

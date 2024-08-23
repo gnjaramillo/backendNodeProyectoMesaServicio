@@ -5,15 +5,7 @@ const validatorUpdateUsuarios = [
     // No permite edición de 'nombre', 'correo' y 'rol' eliminando sus validaciones
     check("telefono").optional().notEmpty().trim().escape().isNumeric().withMessage("El teléfono debe ser un número"),
     check("password").optional().isLength({ min: 6 }).notEmpty().trim().escape().withMessage("La contraseña debe tener al menos 6 caracteres"),
-     // Validación de confirmPassword
-    body('confirmPassword')
-     .optional()
-     .custom((value, { req }) => {
-         if (value !== req.body.password) {
-             throw new Error('Las contraseñas no coinciden');
-         }
-         return true;
-     }),
+  
     (req, res, next) => {
         //  no se envíen `nombre`, `correo`, ni `rol`
         const camposDeshabilitados = ["nombre", "correo", "rol"];
@@ -32,6 +24,8 @@ const validatorGetUsuariosId = [
         validateResults(req, res, next); 
     }
 ];
+
+
 
 module.exports = { validatorUpdateUsuarios, validatorGetUsuariosId };
 
