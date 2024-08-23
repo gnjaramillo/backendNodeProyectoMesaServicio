@@ -5,7 +5,7 @@ const { usuarioModel, storageModel } = require("../models"); // Asegúrate de im
 const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
-
+const jwt = require("jsonwebtoken");
 
 
 // http://localhost:3010/api/auth/register
@@ -60,7 +60,7 @@ const registerCtrl = async (req, res) => {
             ? "Usuario registrado exitosamente. Su cuenta está en espera de aprobación por el Líder TIC." 
             : "Usuario registrado exitosamente.";
 
-        res.send({message, data });
+            res.json({message, data });
 
     } catch (error) {
             return res.status(400).send({message:"correo ya se encuentra registrado"})              
@@ -106,17 +106,49 @@ const loginCtrl = async (req, res) => {
             user
         };
 
-        res.send({  message: "Usuario ha ingresado exitosamente", dataUser});
+    res.cookie("token", token, {
+            secure: true,
+            sameSite: "none",
+            httpOnly: false
+        });
+
+        res.json({  message: "Usuario ha ingresado exitosamente", dataUser});
     } catch (error) {
-        handleHttpError(res, "error login usuario");
+        res.status(500).json({
+            message: "Error al registrar el usuario.",
+            error: error.message
+        })
+        // handleHttpError(res, "error login usuario");
     }
 };
 
+const verifyToken = async (req, res) => {
 
+    const { token } = req.cookies;
 
-module.exports = {registerCtrl, loginCtrl }
+    try {
 
+        if(!token) return res.status(400).json({message: "Sin autorizacion"});
 
+        jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+            if(err) return res.status(400).json({message:err});
+
+            const foundUser = await usuarioModel.findOne({_id: user._id});
+            if (!foundUser) return res.status(400).json({message: "Usuario no encontrado."});
+            
+            return res.status(200).json(foundUser);
+            
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al verificar el token",
+            error: error.message
+        });
+    }
+}
+
+module.exports = {registerCtrl, loginCtrl , verifyToken}
 
 /* undefined a la propiedad password del objeto user: es útil para evitar 
 que la contraseña sea incluida en las respuestas HTTP o se registre 

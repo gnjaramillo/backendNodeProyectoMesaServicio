@@ -5,6 +5,8 @@ const PUBLIC_URL = process.env.PUBLIC_URL;
 const fs = require('fs');
 const path = require('path');
 const transporter = require('../utils/handleEmail')
+//---------------------------------------------------------------
+const { tokenSign } = require("../utils/handleJwt.js");
 
 
 
