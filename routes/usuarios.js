@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico, denegarTecnico } = require("../controllers/usuarios");
+const { getUsuarios, getUsuariosId, updateUsuarios, deleteUsuarios,  listaTecnicosFalse, aprobarTecnico, denegarTecnico } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
 // const authMiddleware = require('../middleware/session') 
 
@@ -17,7 +17,7 @@ router.get("/tecnicosFalse", listaTecnicosFalse);
 router.get("/", getUsuarios);
 router.get("/:id", validatorGetUsuariosId, getUsuariosId);
 router.put("/:id", uploadMiddleware.single('foto'), validatorUpdateUsuarios, updateUsuarios);
-router.delete("/:id", deleteUsuarios);
+router.delete("/:id", validatorGetUsuariosId, deleteUsuarios);
 
 module.exports = router;
 
