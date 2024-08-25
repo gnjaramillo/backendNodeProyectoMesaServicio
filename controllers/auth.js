@@ -101,6 +101,7 @@ const loginCtrl = async (req, res) => {
 
         // Si todo está bien, se devuelve el token de sesión y la data del usuario
         user.set('password', undefined, {strict:false}) // oculta contraseña
+        const token = await tokenSign(user);
         const dataUser = {
             token: await tokenSign(user),
             user
@@ -121,6 +122,7 @@ const loginCtrl = async (req, res) => {
         // handleHttpError(res, "error login usuario");
     }
 };
+
 
 const verifyToken = async (req, res) => {
 

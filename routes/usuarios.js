@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, getUsuariosId, updateUsuarios, deleteUsuarios,  listaTecnicosFalse, aprobarTecnico, denegarTecnico } = require("../controllers/usuarios");
+const { getUsuarios, getUsuariosId, updateUsuarios, deleteUsuarios,  listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
 // const authMiddleware = require('../middleware/session') 
 
@@ -11,7 +11,8 @@ const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validato
 // Rutas específicas para técnicos
 router.put("/:id/aprobarTecnico", aprobarTecnico);
 router.put("/:id/denegarTecnico", denegarTecnico);
-router.get("/tecnicosFalse", listaTecnicosFalse);
+router.get("/tecnicosPendientes", listaTecnicosPendientes);
+router.get("/tecnicosAprobados", listaTecnicosAprobados);
 
 // Rutas generales de usuarios
 router.get("/", getUsuarios);

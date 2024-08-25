@@ -8,9 +8,9 @@ const checkRol = (roles) => (req, res, next)=>{
 
     try {
         const {usuario} = req // establecido en session.js
-        console.log({usuario})
+        // console.log({usuario})
         const rolesUsuario = usuario.rol
-        console.log({rolesUsuario})
+        // console.log({rolesUsuario})
 
         // devuelve un true o false sobre el rol
 
