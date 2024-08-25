@@ -1,20 +1,29 @@
 const express = require("express");
 const router = express.Router();
-// const authMiddleware = require('../middleware/session')
-// const checkRol = require('../middleware/rol')
-const {getSolicitud, getSolicitudesPendientes, crearSolicitud, updateSolicitud, deleteSolicitud, getSolicitudId} = require("../controllers/solicitud")
+const authMiddleware = require('../middleware/session');
+const checkRol = require('../middleware/rol');
+const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, updateSolicitud, deleteSolicitud } = require("../controllers/solicitud");
 const uploadMiddleware = require("../utils/handleStorage");
 
 
 
+// http://localhost:3010/api/solicitud/pendientes
+router.get("/pendientes", getSolicitudesPendientes); 
+router.get("/:id", getSolicitudId); 
 
-router.get("/",  getSolicitud);
-router.get("/:id",   getSolicitudId);
-router.get("/:id",   getSolicitudesPendientes);
-router.post("/",  uploadMiddleware.single("foto"),  crearSolicitud);
-router.put("/:id",  updateSolicitud);
-router.delete("/:id",   deleteSolicitud);
+
+// http://localhost:3010/api/solicitud/:id/asignarTecnico
+router.put("/:id/asignarTecnico", asignarTecnicoSolicitud); 
+
+
+// http://localhost:3010/api/solicitud/
+router.get("/", getSolicitud); 
+router.post("/", uploadMiddleware.single("foto"), authMiddleware, checkRol(['funcionario']), crearSolicitud); 
+router.put("/:id", updateSolicitud); 
+router.delete("/:id", deleteSolicitud);
 
 module.exports = router;
+
+
 
 // checkRol(['funcionario']),

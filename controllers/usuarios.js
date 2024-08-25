@@ -4,8 +4,8 @@ const { handleHttpError } = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL;
 const fs = require('fs');
 const path = require('path');
-const transporter = require('../utils/handleEmail')
 //---------------------------------------------------------------
+const transporter = require('../utils/handleEmail')
 const { tokenSign } = require("../utils/handleJwt.js");
 
 
@@ -37,8 +37,8 @@ const getUsuariosId = async (req, res) => {
 };
 
 
-// gestionar cuenta, actualizar datos de perfil
 
+// gestionar cuenta, actualizar datos de perfil
 const updateUsuarios = async (req, res) => {
     const userId = req.params.id;
     const { body } = req;
@@ -114,6 +114,98 @@ const updateUsuarios = async (req, res) => {
 
 
 
+// tecnicos sin registro aprobado
+const listaTecnicosPendientes = async (req,res)=>{
+    
+    try {
+        const tecnicosFalse = await usuarioModel.find({ rol: 'tecnico', estado: false })
+        .select('nombre correo estado telefono');
+                
+        if(!tecnicosFalse) {
+            return res.status(500).send({message:" no hay tecnicos pendientes de aprobación"})
+        }
+        res.status(200).json({message:"lista de tecnicos pendientes de aprobacion", tecnicosFalse})
+        
+    } catch (error) {
+        handleHttpError(res, "Error al listar tecnicos pendientes de aprobacion", 500);
+        
+    }
+} 
+
+
+
+// aprobar tecnico
+const aprobarTecnico = async (req,res) =>{
+    const id = req.params.id
+    
+    try {        
+        const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {new: true})
+        if (!tecnico) {
+            return res.status(404).send({ message: "Técnico no encontrado" });
+        }        
+        res.status(200).send({message: "Técnico aprobado exitosamente", tecnico })
+           
+    } catch (error) {
+        handleHttpError(res, "Error al aprobar técnico", 500);
+    }         
+}
+
+
+// denegar tecnico
+const denegarTecnico = async (req, res) => {
+    const Id = req.params.id;
+
+    try {
+        // Buscar el usuario para obtener el ID de la foto asociada
+        const tecnico = await usuarioModel.findById(Id).populate('foto');
+        
+        if (!tecnico) {
+            return res.status(404).send({ message: "tecnico no encontrado" });
+        }
+
+        // Eliminar la foto asociada si no es la predeterminada
+        if (tecnico.foto && tecnico.foto.filename !== 'usuario-undefined.png') {
+            await storageModel.findByIdAndDelete(tecnico.foto._id);
+            // Eliminar el archivo físico
+
+            const pathStorage = path.join(__dirname, '../storage', tecnico.foto.filename);
+            fs.unlink(pathStorage, (err) => {
+                if (err) {
+                    console.error("Error al eliminar el archivo físico:", err);
+                    return handleHttpError(res, "Error al eliminar el archivo físico");
+                }
+            });
+        }
+
+        // Eliminar el usuario
+        await usuarioModel.findByIdAndDelete(Id);
+
+        res.send({ message: `tecnico ${Id} y su foto asociada han sido eliminados` });
+    } catch (error) {
+        handleHttpError(res, "Error al eliminar el usuario", 500);
+    }
+};
+
+
+// tecnicos aprobados
+const listaTecnicosAprobados = async (req,res)=>{    
+    try {
+        const tecnicos = await usuarioModel.find({ rol: 'tecnico', estado: true })
+        .select('nombre correo rol estado telefono');
+                
+        if(!tecnicos) {
+            return res.status(500).send({message:" no hay tecnicos aprobados"})
+        }
+        res.status(200).json({message:"lista de tecnicos con registro aprobado", tecnicos})
+        
+    } catch (error) {
+        handleHttpError(res, "Error al listar tecnicos con registro aprobado", 500);
+        
+    }
+} 
+
+
+
 const deleteUsuarios = async (req, res) => {
     const userId = req.params.id;
 
@@ -154,87 +246,7 @@ const deleteUsuarios = async (req, res) => {
 
 
 
-
-const listaTecnicosFalse = async (req,res)=>{
-    
-    try {
-        const tecnicosFalse = await usuarioModel.find({ rol: 'tecnico', estado: false })
-        .select('nombre correo estado telefono');
-        
-        
-        if(!tecnicosFalse) {
-            return res.status(500).send({message:" no hay tecnicos pendientes de aprobación"})
-        }
-        res.status(200).json({message:"lista de tecnicos pendientes de aprobacion", tecnicosFalse})
-        
-    } catch (error) {
-        handleHttpError(res, "Error al listar tecnicos pendientes de aprobacion", 500);
-        
-    }
-} 
-
-
-
-const aprobarTecnico = async (req,res) =>{
-    const id = req.params.id
-    
-    try {
-        const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {new: true})
-        if (!tecnico) {
-            return res.status(404).send({ message: "Técnico no encontrado" });
-        }        
-        res.status(200).send({message: "Técnico aprobado exitosamente", tecnico })
-             
-
-
-    } catch (error) {
-        handleHttpError(res, "Error al aprobar técnico", 500);
-    }      
-    
-}
-
-
-
-const denegarTecnico = async (req, res) => {
-    const Id = req.params.id;
-
-    try {
-        // Buscar el usuario para obtener el ID de la foto asociada
-        const tecnico = await usuarioModel.findById(Id).populate('foto');
-        
-        if (!tecnico) {
-            return res.status(404).send({ message: "tecnico no encontrado" });
-        }
-
-        // Eliminar la foto asociada si no es la predeterminada
-        if (tecnico.foto && tecnico.foto.filename !== 'usuario-undefined.png') {
-            await storageModel.findByIdAndDelete(tecnico.foto._id);
-            // Eliminar el archivo físico
-
-            const pathStorage = path.join(__dirname, '../storage', tecnico.foto.filename);
-            fs.unlink(pathStorage, (err) => {
-                if (err) {
-                    console.error("Error al eliminar el archivo físico:", err);
-                    return handleHttpError(res, "Error al eliminar el archivo físico");
-                }
-            });
-        }
-
-        // Eliminar el usuario
-        await usuarioModel.findByIdAndDelete(Id);
-
-        res.send({ message: `tecnico ${Id} y su foto asociada han sido eliminados` });
-    } catch (error) {
-        handleHttpError(res, "Error al eliminar el usuario", 500);
-    }
-};
-
-
-
-
-
-
-module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosFalse, aprobarTecnico, denegarTecnico };
+module.exports = { getUsuarios, updateUsuarios, deleteUsuarios, getUsuariosId, listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados };
 
 
 
