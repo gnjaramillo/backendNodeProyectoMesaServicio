@@ -153,21 +153,15 @@ const asignarTecnicoSolicitud = async (req, res) => {
             from: process.env.EMAIL,
             to: tecnicoAsignado.correo,
             subject: 'Asignacion de caso - Mesa de Servicio - CTPI-CAUCA',
-            html: `<p>Cordial saludo, ${tecnicoAsignado.nombre},</p>
-    
-    <p>Nos permitimos informarle que le ha sido asignada la solicitud con el código de caso <strong>${solicitud.codigoCaso}</strong>.</p>
-    
-    <p>Esta solicitud ha sido asignada para su gestión según los acuerdos de servicio establecidos para la Mesa de Servicios del CTPI-CAUCA. Le agradecemos que revise los detalles de la solicitud y proceda con las acciones necesarias para su resolución.</p>
-    
-    <p>Para acceder al sistema y gestionar la solicitud, por favor ingrese a la siguiente dirección:</p>
-    
-    <p><a href="http://mesadeservicioctpicauca.sena.edu.co">http://mesadeservicioctpicauca.sena.edu.co</a></p>
-    
-    <p>Agradecemos su pronta atención a esta solicitud.</p>
-    
-    <p>Atentamente,<br>
-    Equipo de Mesa de Servicios<br>
-    CTPI-CAUCA</p>`
+            html: `<p>Cordial saludo, ${tecnicoAsignado.nombre},</p>    
+        <p>Nos permitimos informarle que le ha sido asignada la solicitud con el código de caso <strong>${solicitud.codigoCaso}</strong>.</p>
+        <p>Esta solicitud ha sido asignada para su gestión según los acuerdos de servicio establecidos para la Mesa de Servicios del CTPI-CAUCA. Le agradecemos que revise los detalles de la solicitud y proceda con las acciones necesarias para su resolución.</p>
+        <p>Para acceder al sistema y gestionar la solicitud, por favor ingrese a la siguiente dirección:</p>
+        <p><a href="http://mesadeservicioctpicauca.sena.edu.co">http://mesadeservicioctpicauca.sena.edu.co</a></p>
+        <p>Agradecemos su pronta atención a esta solicitud.</p>
+        <p>Atentamente,<br>
+        Equipo de Mesa de Servicios<br>
+        CTPI-CAUCA</p>`
         });
 
         res.status(200).json({ message: 'Técnico asignado exitosamente', solicitud });
