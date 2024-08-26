@@ -101,6 +101,10 @@ const loginCtrl = async (req, res) => {
 
         // Si todo está bien, se devuelve el token de sesión y la data del usuario
         user.set('password', undefined, {strict:false}) // oculta contraseña
+
+
+        //nuevo------------------------
+        const token = await tokenSign(user)
         const dataUser = {
             token: await tokenSign(user),
             user
@@ -148,8 +152,25 @@ const verifyToken = async (req, res) => {
     }
 }
 
-module.exports = {registerCtrl, loginCtrl , verifyToken}
+const createLogout =  (req, res) => {
 
+    try {
+        
+        res.cookie("token", "", {
+            expires: new Date(0)
+        });
+        res.status(200).json({message: "Sesion cerrada exitosamente!"});
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al cerrar la sesion',
+            error: error.message
+        });
+    }
+
+}
+module.exports = {registerCtrl, loginCtrl, createLogout, verifyToken}
+    
 /* undefined a la propiedad password del objeto user: es útil para evitar 
 que la contraseña sea incluida en las respuestas HTTP o se registre 
 en los logs.  { strict: false } permite esta modificación, incluso si el 

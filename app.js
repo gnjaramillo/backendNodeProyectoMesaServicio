@@ -16,7 +16,8 @@ app.use(cors({
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  
 }));
 app.use(morgan("dev"))
 // tengo que establecer a mi app que este preparado para recibir un post
