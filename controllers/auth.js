@@ -75,7 +75,7 @@ const loginCtrl = async (req, res) => {
 
 
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado');
+        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado').populate('foto', 'url')
        
         if (!user) {
             return handleHttpError(res, "usuario no existe", 404);

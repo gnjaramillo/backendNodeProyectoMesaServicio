@@ -2,32 +2,32 @@ const{ambienteModel} = require("../models")
 const {handleHttpError} = require("../utils/handleError")
 
 
+
 const getAmbiente = async (req, res) => {
     try {
-        // la const usuario me permite saber quien hace la peticion
-        const usuario = req.usuario
-        const data = await ambienteModel.find({})
-        res.send({data, usuario})    
-
+        const data = await ambienteModel.find({ activo: true });
+        res.send({ data });
     } catch (error) {
-        handleHttpError(res, "error al obtener datos de ambiente de formación")
+        handleHttpError(res, "Error al obtener datos de ambiente de formación");
     }
 }
+
 
 
 const getAmbienteId = async (req, res) =>{
     try {
-        const {id} =req.params;
-        const data = await ambienteModel.findById(id)
+        const { id } = req.params;
+        const data = await ambienteModel.findOne({ _id: id, activo: true });
         if (!data) {
-            handleHttpError(res, "ambiente de formación no encontrado")
-            return;            
+            handleHttpError(res, "Ambiente de formación no encontrado", 404);
+            return;
         }
-        res.send({message: "ambiente de formación consultado exitosamente ", data})
+        res.send({ message: "Ambiente de formación consultado exitosamente", data });
     } catch (error) {
-        handleHttpError(res, "error al consultar la ambiente de formación")        
+        handleHttpError(res, "Error al consultar el ambiente de formación");
     }
 }
+
 
 
 const postAmbiente = async(req, res) => {
@@ -41,45 +41,59 @@ const postAmbiente = async(req, res) => {
 }
 
 
-const updateAmbiente = async(req, res)=>{
+
+const updateAmbiente = async(req, res) => {
     const ambienteId = req.params.id;
-    const {body} = req;
+    const { body } = req;
 
     try {
-        let updateData={...body};
-        const data = await ambienteModel.findOneAndUpdate({_id:ambienteId}, updateData, { new: true });
-        console.log(updateData)
+        const data = await ambienteModel.findOneAndUpdate(
+            { _id: ambienteId, activo: true },
+            { ...body },
+            { new: true }
+        );
 
         if (!data) {
-            handleHttpError(res, "ambiente de formación no encontrado", 404);
+            handleHttpError(res, "Ambiente de formación no encontrado", 404);
             return;
-        }    
-
-        res.send({ message: `ambiente de formación ${ambienteId} actualizado exitosamente`, data });
-    } catch (error) {
-        handleHttpError(res, "Error al actualizar");
-    }
-
-}
-
-
-const deleteAmbiente = async(req, res) =>{
-    const ambienteId = req.params.id;
-
-    try {
-        const data = await ambienteModel.findOneAndDelete({_id:ambienteId})
-        if (!data) {
-            handleHttpError(res, "ambiente de formación no encontrado", 404);
-            return;
-            
         }
-        res.send({ message: `ambiente de formación ${ambienteId} eliminado` });
+
+        res.send({ message: `Ambiente de formación ${ambienteId} actualizado exitosamente`, data });
+    } catch (error) {
+        handleHttpError(res, "Error al actualizar el ambiente de formación");
+    }
+}
+
+
+
+const deleteAmbiente = async(req, res) => {
+    const ambienteId = req.params.id;
+
+    try {
+        // Actualizar el campo 'activo' a false en lugar de eliminar el documento
+        const data = await ambienteModel.findOneAndUpdate(
+            { _id: ambienteId },
+            { activo: false },
+            { new: true }
+        );
+
+        if (!data) {
+            handleHttpError(res, "Ambiente de formación no encontrado", 404);
+            return;
+        }
+
+        res.send({ message: `Ambiente de formación ${ambienteId} desactivado exitosamente`, data });
 
     } catch (error) {
-        handleHttpError(res, "Error al actualizar");
+        handleHttpError(res, "Error al desactivar el ambiente de formación");
     }
+};
 
-}
 
 
 module.exports = { getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, deleteAmbiente };
+
+
+
+// permite saber quien hace la peticion
+// const usuario = req.usuario
