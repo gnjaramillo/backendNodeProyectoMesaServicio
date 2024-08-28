@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require('../middleware/session');
 const checkRol = require('../middleware/rol');
-const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, updateSolicitud, deleteSolicitud } = require("../controllers/solicitud");
+const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, solucionSolicitud, updateSolicitud, deleteSolicitud } = require("../controllers/solicitud");
 const uploadMiddleware = require("../utils/handleStorage");
 
 
@@ -18,6 +18,8 @@ router.post("/", uploadMiddleware.single("foto"), authMiddleware, checkRol(['fun
 // http://localhost:3010/api/solicitud/pendientes
 router.get("/pendientes", getSolicitudesPendientes); 
 router.get("/asignadas",  authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas); 
+router.get("/:id/solucion",  authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas); 
+
 router.get("/:id", getSolicitudId); 
 router.put("/:id", uploadMiddleware.single("foto"), updateSolicitud); 
 router.delete("/:id", deleteSolicitud);

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const solucionCasoSchema = new mongoose.Schema({
-    caso: {
+    solicitud: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Caso',
+        ref: 'Solicitud',
         required: true
     },
 
@@ -17,11 +17,17 @@ const solucionCasoSchema = new mongoose.Schema({
         ref: 'TipoDeCaso',
         required: true
     },
-    
+
+    tipoSolucion: {
+        type: String,
+        enum: ['pendiente', 'finalizado'],
+        required: true,
+    },
+
     evidencia: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Storage',
-        required: function() { return this.estado === 'pendiente'; } // obligatorio si el estado es "pendiente"
+        required: function() { return this.tipoSolucion === 'pendiente'; } // obligatorio si el estado es "pendiente"
     }
 }, 
 
