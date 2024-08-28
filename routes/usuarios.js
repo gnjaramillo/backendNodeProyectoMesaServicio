@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, getUsuariosId, updateUsuarios, deleteUsuarios,  listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados } = require("../controllers/usuarios");
+const { getUsuarios, getPerfilUsuario, getUsuariosId, updateUsuarios, deleteUsuarios,  listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
-// const authMiddleware = require('../middleware/session') 
+const checkRol = require('../middleware/rol');
+const authMiddleware = require('../middleware/session') 
 
 const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validators/usuarios");
 
@@ -16,8 +17,10 @@ router.get("/tecnicosAprobados", listaTecnicosAprobados);
 
 // Rutas generales de usuarios
 router.get("/", getUsuarios);
+router.get("/perfil", authMiddleware, getPerfilUsuario);
+router.put("/perfil", authMiddleware, uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
 router.get("/:id", validatorGetUsuariosId, getUsuariosId);
-router.put("/:id", uploadMiddleware.single('foto'), validatorUpdateUsuarios, updateUsuarios);
+// router.put("/:id", authMiddleware, uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
 router.delete("/:id", validatorGetUsuariosId, deleteUsuarios);
 
 module.exports = router;

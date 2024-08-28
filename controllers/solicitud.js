@@ -2,7 +2,8 @@ const { solicitudModel, storageModel, usuarioModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
-const transporter = require('../utils/handleEmail')
+const transporter = require('../utils/handleEmail');
+const solicitud = require("../models/solicitud");
 
 
 //http://localhost:3010/api/solicitud/
@@ -14,8 +15,8 @@ const getSolicitud = async (req, res) => {
             .populate('ambiente', 'nombre')
             .populate('foto', 'url filename')
 
-        res.send({ data });
-    } catch (error) {
+            res.status(200).json({ message: "solicitud consultado exitosamente", data });
+        } catch (error) {
         handleHttpError(res, "error al obtener datos");
     }
 };
@@ -34,7 +35,9 @@ const getSolicitudId = async (req, res) => {
             handleHttpError(res, "solicitud no encontrado");
             return;
         }
-        res.send({ message: "solicitud consultado exitosamente", data });
+
+        res.status(200).json({ message: "solicitud consultado exitosamente", data });
+        
     } catch (error) {
         handleHttpError(res, "Error al consultar el solicitud");
     }
@@ -42,7 +45,7 @@ const getSolicitudId = async (req, res) => {
 
 
 
-// solicitudes para ser asignadas 
+// solicitudes realizadas por funcionarios, pendientes de ser asignadas 
 const getSolicitudesPendientes = async (req, res) => {
     try {
         const data = await solicitudModel.find({ estado: 'solicitado' })
@@ -65,7 +68,7 @@ const crearSolicitud = async (req, res) => {
     try {
         const { body } = req;
         const file = req.file;
-        const usuarioId = req.usuario._id; // lo trae 
+        const usuarioId = req.usuario._id; // lo trae el middleware de sesion con jwt
         let fotoId;
 
         // Si hay un archivo adjunto, guárdalo y obtén su ID
@@ -124,7 +127,7 @@ const crearSolicitud = async (req, res) => {
 };
 
 
-
+// asignar tecnico a solicitud
 const asignarTecnicoSolicitud = async (req, res) => {
     try {
         const { id } = req.params; //id solicitud
@@ -172,13 +175,79 @@ const asignarTecnicoSolicitud = async (req, res) => {
 
 
 
+//solicitudes asignadas filtradas por cada tecnico
+const getSolicitudesAsignadas = async (req,res) =>{
+
+    try {
+        const tecnicoId = req.usuario._id 
+        const tecnico = await usuarioModel.findById({_id:tecnicoId})
+
+
+        const solicitudesAsignadas = await solicitudModel.find({tecnico: tecnicoId})
+            .select('descripcion telefono fecha estado')
+            .populate('usuario', 'nombre correo')
+            .populate('ambiente', 'nombre')
+            .populate('foto', 'url');
+
+        res.status(200).json({message:`solicitudes asignadas tecnico ${tecnico.nombre}`, solicitudesAsignadas });
+        
+    } catch (error) {
+        handleHttpError(res, "Error al obtener datos");
+    }
+}
+
+
+
 
 const updateSolicitud = async (req, res) => {
     const Id = req.params.id;
     const { body } = req;
+    const file = req.file;
 
     try {
-        const data = await solicitudModel.findOneAndUpdate({ _id: Id }, body, { new: true });
+
+        let updatedData = {...body}
+
+        const solicitud = await solicitudModel.findById(Id).populate('foto');
+        if (!solicitud) {
+
+            return res.status(404).send({message: 'solicitud no encontrada'})
+            
+        }
+
+        if (file){
+            
+            if (solicitud.foto) {
+                await storageModel.findByIdAndDelete(solicitud.foto._id)
+                const pathStorage = path.join(__dirname, '../storage', user.foto.filename);
+        
+                // Eliminar el archivo físico
+                fs.unlink(pathStorage, (err) => {
+                    if (err) {
+                        console.error("Error al eliminar el archivo físico:", err);
+                        return handleHttpError(res, "Error al eliminar el archivo físico");
+                    }
+                });
+            }
+
+            // Guardar el nuevo archivo en la colección storage
+            const fileData = {
+                url: `${PUBLIC_URL}/${file.filename}`,
+                filename: file.filename
+            };
+
+            const fileSaved = await storageModel.create(fileData);
+
+            // Actualizar el campo 'foto' con el ID del nuevo archivo guardado
+            updatedData.foto = fileSaved._id;
+
+        }
+
+        console.log(updatedData)
+
+
+
+        const data = await solicitudModel.findOneAndUpdate({ _id: Id }, updatedData, { new: true });
         res.send({ message: `solicitud ${Id} actualizado exitosamente`, data });
     } catch (error) {
         handleHttpError(res, "error al actualizar solicitud");
@@ -201,4 +270,4 @@ const deleteSolicitud = async (req, res) => {
     }
 };
 
-module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, updateSolicitud, deleteSolicitud };
+module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, updateSolicitud, deleteSolicitud };
