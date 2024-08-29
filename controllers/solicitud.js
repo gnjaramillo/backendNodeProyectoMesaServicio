@@ -3,16 +3,16 @@ const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const transporter = require('../utils/handleEmail');
-const solicitud = require("../models/solicitud");
 
 
-//http://localhost:3010/api/solicitud/
+
 
 const getSolicitud = async (req, res) => {
     try {
         const data = await solicitudModel.find({}).select('descripcion fecha estado')
             .populate('usuario', 'nombre')
             .populate('ambiente', 'nombre')
+            .populate('tecnico', 'nombre')
             .populate('foto', 'url filename')
 
             res.status(200).json({ message: "solicitud consultado exitosamente", data });
@@ -29,6 +29,7 @@ const getSolicitudId = async (req, res) => {
         const data = await solicitudModel.findById(id).select('descripcion fecha estado')
         .populate('usuario', 'nombre')
         .populate('ambiente', 'nombre')
+        .populate('tecnico', 'nombre')
         .populate('foto', 'url'); 
         
         if (!data) {
@@ -198,7 +199,7 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
 
 
-// dar solucion a solicitud
+// dar solucion a solicitud 
 const solucionSolicitud = async (req, res) => {
     const { id } = req.params; // id de la solicitud
     const { body } = req;
@@ -226,8 +227,13 @@ const solucionSolicitud = async (req, res) => {
         
         const { tipoSolucion } = body;
         
-        if (tipoSolucion === 'pendiente') {
+        if (tipoSolucion === 'pendiente' && !fotoId) {
+            return res.status(400).json({ message: 'Se requiere evidencia para establecer una solución pendiente' });
+
+        } else if (tipoSolucion === 'pendiente' && fotoId) {
             solicitud.estado = 'pendiente';
+            await solicitud.save();
+
         } else if (tipoSolucion === 'finalizado') {
             solicitud.estado = 'finalizado';
             await solicitud.save();
@@ -246,31 +252,14 @@ const solucionSolicitud = async (req, res) => {
                     <br>
                     <p>Atentamente,</p>
                     <p>Equipo de Mesa de Servicio - CTPI-CAUCA</p> `
-
             });
 
-
-            // Enviar correo de notificación al líder TIC cuando la solicitud se finalice
-            const lider = await usuarioModel.findOne({ rol: 'lider' });
-
-            await transporter.sendMail({
-                from: process.env.EMAIL,
-                to: lider.correo,
-                subject: 'Caso Cerrado - Mesa de Servicio - CTPI-CAUCA',
-                html: `
-                    <p>Cordial saludo, ${lider.nombre},</p>
-                    <p>Nos permitimos informarle que el caso con código ${solicitud.codigoCaso} ha sido cerrado con éxito.</p>
-                    <p>Gracias por su gestión en el servicio de Mesa de Ayuda. Si tiene alguna otra solicitud o comentario, no dude en contactarnos.</p>
-                    <br>
-                    <p>Atentamente,</p>
-                    <p>Equipo de Mesa de Servicio - CTPI-CAUCA</p>
-                `
-            });
-
-
-        } else {
-            await solicitud.save();
+            // Enviar respuesta y salir de la función
+            return res.status(200).send({ message: "Caso cerrado exitosamente" });
         }
+
+        // Guardar la solicitud y registrar la solución
+        await solicitud.save();
 
         const datasolucion = {
             ...body,
@@ -279,82 +268,17 @@ const solucionSolicitud = async (req, res) => {
         };
 
         const solucionCaso = await solucionCasoModel.create(datasolucion);
-        res.status(201).send({ message: "Registro exitoso de la solución del caso", solucionCaso });
+        return res.status(201).send({ message: "Registro exitoso de la solución del caso", solucionCaso });
 
     } catch (error) {
         console.error(error);
-        handleHttpError(res, "Error al registrar la solución del caso");
+        return handleHttpError(res, "Error al registrar la solución del caso");
     }
 };
 
 
 
-const updateSolicitud = async (req, res) => {
-    const Id = req.params.id;
-    const { body } = req;
-    const file = req.file;
-
-    try {
-
-        let updatedData = {...body}
-
-        const solicitud = await solicitudModel.findById(Id).populate('foto');
-        if (!solicitud) {
-            return res.status(404).send({message: 'solicitud no encontrada'})            
-        }
-
-        if (file){
-            
-            if (solicitud.foto) {
-                await storageModel.findByIdAndDelete(solicitud.foto._id)
-                const pathStorage = path.join(__dirname, '../storage', user.foto.filename);
-        
-                // Eliminar el archivo físico
-                fs.unlink(pathStorage, (err) => {
-                    if (err) {
-                        console.error("Error al eliminar el archivo físico:", err);
-                        return handleHttpError(res, "Error al eliminar el archivo físico");
-                    }
-                });
-            }
-
-            // Guardar el nuevo archivo en la colección storage
-            const fileData = {
-                url: `${PUBLIC_URL}/${file.filename}`,
-                filename: file.filename
-            };
-
-            const fileSaved = await storageModel.create(fileData);
-
-            // Actualizar el campo 'foto' con el ID del nuevo archivo guardado
-            updatedData.foto = fileSaved._id;
-
-        }
-
-        const data = await solicitudModel.findOneAndUpdate({ _id: Id }, updatedData, { new: true });
-        res.send({ message: `solicitud ${Id} actualizado exitosamente`, data });
-    } catch (error) {
-        handleHttpError(res, "error al actualizar solicitud");
-    }
-};
-
-
-
-const deleteSolicitud = async (req, res) => {
-    const Id = req.params.id;
-    try {
-        const data = await solicitudModel.findByIdAndDelete({ _id: Id });
-        if (!data) {
-            handleHttpError(res, "solicitud no encontrado", 404);
-            return;
-        }
-        res.send({ message: `solicitud ${Id} eliminado` });
-    } catch (error) {
-        handleHttpError(res, "Error al eliminar solicitud");
-    }
-};
-
-module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, solucionSolicitud, updateSolicitud, deleteSolicitud };
+module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, solucionSolicitud };
 
 
 /* const getSolicitudesPorAmbiente = async (req, res) => {
