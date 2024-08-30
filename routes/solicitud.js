@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require('../middleware/session');
 const checkRol = require('../middleware/rol');
-const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, solucionSolicitud } = require("../controllers/solicitud");
+const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas } = require("../controllers/solicitud");
 const uploadMiddleware = require("../utils/handleStorage");
 
 
@@ -12,10 +12,13 @@ router.post("/", authMiddleware, uploadMiddleware.single("foto"),  checkRol(['fu
 
 // http://localhost:3010/api/solicitud/pendientes
 router.get("/pendientes", getSolicitudesPendientes); 
-router.get("/asignadas",  authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas);  
-router.post("/:id/solucion", authMiddleware,  uploadMiddleware.single('evidencia'), checkRol(['tecnico']), solucionSolicitud); 
 
+
+// http://localhost:3010/api/solicitud/asignadas
+router.get("/asignadas",  authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas);  
 router.get("/:id", getSolicitudId); 
+
+
 
 // http://localhost:3010/api/solicitud/:id/asignarTecnico
 router.put("/:id/asignarTecnico", asignarTecnicoSolicitud); 
