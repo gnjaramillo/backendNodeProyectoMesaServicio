@@ -6,11 +6,6 @@ const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, 
 const uploadMiddleware = require("../utils/handleStorage");
 
 
-
-
-
-
-
 // http://localhost:3010/api/solicitud/
 router.get("/", getSolicitud); 
 router.post("/", authMiddleware, uploadMiddleware.single("foto"),  checkRol(['funcionario']), crearSolicitud); 

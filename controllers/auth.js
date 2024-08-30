@@ -150,6 +150,8 @@ const verifyToken = async (req, res) => {
     }
 }
 
+
+
 module.exports = {registerCtrl, loginCtrl , verifyToken}
 
 /* undefined a la propiedad password del objeto user: es útil para evitar 
