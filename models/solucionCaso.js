@@ -25,9 +25,9 @@ const solucionCasoSchema = new mongoose.Schema({
     },
 
     evidencia: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId, // opcional
         ref: 'Storage',
-        required: function() { return this.tipoSolucion === 'pendiente'; } // obligatorio si el estado es "pendiente"
+        required: false
     }
 }, 
 

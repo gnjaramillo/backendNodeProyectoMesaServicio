@@ -186,7 +186,7 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
         const solicitudesAsignadas = await solicitudModel.find({tecnico: tecnicoId})
             .select('descripcion telefono fecha estado')
-            .populate('usuario', 'nombre correo')
+            .populate('usuario', 'nombre')
             .populate('ambiente', 'nombre')
             .populate('foto', 'url');
 
@@ -227,10 +227,7 @@ const solucionSolicitud = async (req, res) => {
         
         const { tipoSolucion } = body;
         
-        if (tipoSolucion === 'pendiente' && !fotoId) {
-            return res.status(400).json({ message: 'Se requiere evidencia para establecer una solución pendiente' });
-
-        } else if (tipoSolucion === 'pendiente' && fotoId) {
+        if (tipoSolucion === 'pendiente') {
             solicitud.estado = 'pendiente';
             await solicitud.save();
 
@@ -281,13 +278,14 @@ const solucionSolicitud = async (req, res) => {
 module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, solucionSolicitud };
 
 
-/* const getSolicitudesPorAmbiente = async (req, res) => {
-    const ambienteId = req.params.id; // Suponiendo que recibes el ID del ambiente
+/* if (tipoSolucion === 'pendiente' && !fotoId) {
+    return res.status(400).json({ message: 'Se requiere evidencia para establecer una solución pendiente' });
 
-    try {
-        const solicitudes = await SolicitudModel.find({ ambienteId: ambienteId }); // Suponiendo que tienes una relación
-        res.send({ data: solicitudes });
-    } catch (error) {
-        handleHttpError(res, "Error al obtener solicitudes del ambiente");
-    }
-}; */
+} else if (tipoSolucion === 'pendiente' && fotoId) {
+    solicitud.estado = 'pendiente';
+    await solicitud.save();
+
+} else if (tipoSolucion === 'finalizado') {
+    solicitud.estado = 'finalizado';
+    await solicitud.save();
+ */

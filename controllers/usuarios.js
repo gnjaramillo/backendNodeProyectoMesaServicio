@@ -153,7 +153,7 @@ const listaTecnicosPendientes = async (req,res)=>{
 
 
 
-// aprobar tecnico IMPLEMENTAR LO DEL CORREO DE NOTIFICACION,,,,
+// aprobar tecnico 
 const aprobarTecnico = async (req,res) =>{
     const id = req.params.id
     
