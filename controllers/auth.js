@@ -151,8 +151,27 @@ const verifyToken = async (req, res) => {
 }
 
 
+const createLogout = (req, res) => {
+    try {
+        // Limpiar la cookie del token
+        res.compareookie("token", "", {
+            expires: new Date(0)
+          
+        });
 
-module.exports = {registerCtrl, loginCtrl , verifyToken}
+        res.status(200).json({ message: "Sesión cerrada exitosamente" });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al cerrar sesión",
+            error: error.message
+        });
+    }
+};
+
+module.exports = { registerCtrl, loginCtrl, verifyToken, createLogout };
+
+
+
 
 /* undefined a la propiedad password del objeto user: es útil para evitar 
 que la contraseña sea incluida en las respuestas HTTP o se registre 
