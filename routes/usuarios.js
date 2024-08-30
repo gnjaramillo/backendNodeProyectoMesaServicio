@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, getPerfilUsuario, getUsuariosId, updateUsuarios, deleteUsuarios,  listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados } = require("../controllers/usuarios");
+const { getUsuarios, getPerfilUsuario, getUsuariosId, updateUsuarios, deleteUsuarios } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
 const checkRol = require('../middleware/rol');
 const authMiddleware = require('../middleware/session') 

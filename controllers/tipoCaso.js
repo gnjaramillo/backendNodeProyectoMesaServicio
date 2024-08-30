@@ -12,6 +12,7 @@ const getTipoCaso= async (req,res)=>{
     }
 }
 
+
 const getTipoCasoId = async(req, res)=>{
     try {
         const {id} = req.params;
@@ -26,6 +27,7 @@ const getTipoCasoId = async(req, res)=>{
         handleHttpError(res, "Error al consultar el tipo de caso")
     }
 }
+
 
 const postTipoCaso= async(req, res)=>{
     const {body}=req;
