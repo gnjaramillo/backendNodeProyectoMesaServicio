@@ -8,15 +8,12 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 
 
 // router.post("/register", uploadMiddleware.single("foto"), validatorRegister, registerCtrl)
-router.post("/register", uploadMiddleware.single("foto"), registerCtrl)
-
-
-
-router.post("/login", loginCtrl)
-
+router.post("/register", uploadMiddleware.single("foto"), validatorRegister, registerCtrl)
+router.post("/login", validatorLogin, loginCtrl)
 router.get('/verify-token', verifyToken);
+router.post("/logout", createLogout);
 
-router.post('/logout', createLogout);
+
 
 module.exports = router;
 
