@@ -127,6 +127,7 @@ const loginCtrl = async (req, res) => {
     }
 };
 
+
 const verifyToken = async (req, res) => {
 
     const { token } = req.cookies;
