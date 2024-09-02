@@ -9,11 +9,7 @@ const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validato
 
 // http://localhost:3010/api/usuarios/
 
-// Rutas específicas para técnicos
-router.put("/:id/aprobarTecnico", aprobarTecnico);
-router.put("/:id/denegarTecnico", denegarTecnico);
-router.get("/tecnicosPendientes", listaTecnicosPendientes);
-router.get("/tecnicosAprobados", listaTecnicosAprobados);
+
 
 // Rutas generales de usuarios
 router.get("/", getUsuarios);

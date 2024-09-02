@@ -95,5 +95,5 @@ module.exports = { getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, del
 
 
 
-// permite saber quien hace la peticion
-// const usuario = req.usuario
+
+// const usuario = req.usuario permite saber quien hace la peticion

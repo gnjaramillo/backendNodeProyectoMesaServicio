@@ -60,7 +60,7 @@ const getPerfilUsuario = async (req,res) =>{
 
 
 
-//actualizar datos de perfil
+//actualizar datos de perfil, excepto correo, rol y nombre
 const updateUsuarios = async (req, res) => {
     const userId = req.usuario._id; 
 
@@ -130,7 +130,6 @@ const updateUsuarios = async (req, res) => {
         handleHttpError(res, "Error al actualizar el usuario", 500);
     }
 };
-
 
 
 

@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
-// const authMiddleware = require('../middleware/session')
+const checkRol = require('../middleware/rol');
+const authMiddleware = require('../middleware/session') 
 
 const { getTipoCaso, getTipoCasoId, postTipoCaso,updateTipoCaso, deleteTipoCaso} = require("../controllers/tipoCaso");
 
-router.get("/",  getTipoCaso);
-router.get("/:id",  getTipoCasoId);
-router.post("/",  postTipoCaso);
-router.put("/:id",  updateTipoCaso);
-router.delete("/:id",   deleteTipoCaso);
+router.get("/", authMiddleware, checkRol(['lider']), getTipoCaso);
+router.get("/:id", authMiddleware, checkRol(['lider']), getTipoCasoId);
+router.post("/", authMiddleware, checkRol(['lider']), postTipoCaso);
+router.put("/:id",authMiddleware, checkRol(['lider']),  updateTipoCaso);
+router.delete("/:id", authMiddleware, checkRol(['lider']),  deleteTipoCaso);
 
 module.exports = router;

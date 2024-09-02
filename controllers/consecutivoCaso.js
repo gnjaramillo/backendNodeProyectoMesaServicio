@@ -1,10 +1,11 @@
-
 const { consecutivoCasoModel } = require("../models");
+const { DateTime } = require("luxon");
+
+
 
 const postConsecutivoCaso = async () => {
     try {
-        // Obtener año y mes actuales en formato "YYYY-MM"
-        const currentYearMonth = new Date().toISOString().slice(0, 7);
+        const currentYearMonth = DateTime.now().toFormat("yyyy-MM");
 
         // Buscar el consecutivo correspondiente al año y mes actuales
         let consecutivo = await consecutivoCasoModel.findOne({ yearMonth: currentYearMonth });
@@ -17,14 +18,12 @@ const postConsecutivoCaso = async () => {
             });
         }
 
-        // Incrementar la secuencia
         consecutivo.sequence += 1;
         await consecutivo.save();
 
         // Formatear el consecutivo a 5 dígitos, e.g., "00001"
         const consecutivoFormateado = consecutivo.sequence.toString().padStart(5, '0');
 
-        // Generar el código del caso con "YYYY-MM-XXXXX"
         const codigoCaso = `${currentYearMonth}-${consecutivoFormateado}`;
         return codigoCaso;
 
@@ -34,4 +33,3 @@ const postConsecutivoCaso = async () => {
 };
 
 module.exports = { postConsecutivoCaso };
-

@@ -1,4 +1,4 @@
-const { solicitudModel, storageModel, usuarioModel } = require("../models");
+const { solicitudModel, storageModel, usuarioModel, ambienteModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
@@ -11,7 +11,7 @@ const getSolicitud = async (req, res) => {
     try {
         const data = await solicitudModel.find({}).select('descripcion fecha estado')
             .populate('usuario', 'nombre')
-            .populate('ambiente', 'nombre')
+            .populate('ambiente', 'nombre estado')
             .populate('tecnico', 'nombre')
             .populate('foto', 'url filename')
 
@@ -28,7 +28,7 @@ const getSolicitudId = async (req, res) => {
         const { id } = req.params;
         const data = await solicitudModel.findById(id).select('descripcion fecha estado')
         .populate('usuario', 'nombre')
-        .populate('ambiente', 'nombre')
+        .populate('ambiente', 'nombre estado')
         .populate('tecnico', 'nombre')
         .populate('foto', 'url'); 
         
@@ -64,14 +64,20 @@ const getSolicitudesPendientes = async (req, res) => {
 
 
 
-// solicitudes realizadas por funcionarios
-const crearSolicitud = async (req, res) => {
 
+// crear solicitud por funcionarios
+const crearSolicitud = async (req, res) => {
     const { body } = req;
     const file = req.file;
-    const usuarioId = req.usuario._id; // lo trae el middleware de sesion con jwt
+    const usuarioId = req.usuario._id; // middleware de sesión con JWT
     
     try {
+        // Validar si el ambiente asociado está activo
+        const ambienteActivo = await ambienteModel.findOne({ _id: body.ambiente, activo: true });
+        if (!ambienteActivo) {
+            return handleHttpError(res, "El ambiente seleccionado no está activo o no existe", 400);
+        }
+
         let fotoId;
 
         // Si hay un archivo adjunto, guárdalo y obtén su ID
@@ -81,17 +87,15 @@ const crearSolicitud = async (req, res) => {
                 url: `${PUBLIC_URL}/${file.filename}`
             };
 
-            console.log(fileData);
-
             const fileSaved = await storageModel.create(fileData);
             fotoId = fileSaved._id;
+        } else {
+            console.log('No se subió ningún archivo.');
         }
 
         // Generar el código del caso usando el modelo Consecutivo
         const codigoCaso = await postConsecutivoCaso();
 
-
-        // Incluir la evidencia en la solicitud solo si se subió una foto
         const dataSolicitud = {
             ...body,
             usuario: usuarioId,
@@ -100,16 +104,16 @@ const crearSolicitud = async (req, res) => {
             estado: 'solicitado'
         };
 
+        console.log('Datos de la solicitud:', dataSolicitud);
+
         const solicitudCreada = await solicitudModel.create(dataSolicitud); 
+        res.status(201).send({ message: "Registro de solicitud exitoso", solicitud: solicitudCreada });
 
-        res.status(201).send({  message:"registro de solicitud exitosa", solicitud: solicitudCreada });
+        // Enviar correo al funcionario 
+        const usuario = await usuarioModel.findById(dataSolicitud.usuario);
+        console.log('Usuario que registró la solicitud:', usuario);
 
-
-        //enviar correo al funcionario que registro la solicitud, busco el funcionario asociado
-
-        const usuario = await usuarioModel.findById(dataSolicitud.usuario)
-
-        transporter.sendMail({
+        await transporter.sendMail({
             from: process.env.EMAIL,
             to: usuario.correo,
             subject: 'Registro Solicitud - Mesa de Servicio - CTPI-CAUCA',
@@ -120,12 +124,14 @@ const crearSolicitud = async (req, res) => {
                 <br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url:\
                 http://mesadeservicioctpicauca.sena.edu.co.`
         });
-
+        console.log('Correo enviado a:', usuario.correo);
 
     } catch (error) {
+        console.error('Error al registrar la solicitud:', error);
         handleHttpError(res, "Error al registrar solicitud");
     }
 };
+
 
 
 // asignar tecnico a solicitud
@@ -201,17 +207,6 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
 
 
-module.exports = { getSolicitud, getSolicitudId,getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas };
+module.exports = { getSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas };
 
 
-/* if (tipoSolucion === 'pendiente' && !fotoId) {
-    return res.status(400).json({ message: 'Se requiere evidencia para establecer una solución pendiente' });
-
-} else if (tipoSolucion === 'pendiente' && fotoId) {
-    solicitud.estado = 'pendiente';
-    await solicitud.save();
-
-} else if (tipoSolucion === 'finalizado') {
-    solicitud.estado = 'finalizado';
-    await solicitud.save();
- */

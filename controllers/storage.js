@@ -60,7 +60,6 @@ const getStorageId = async (req,res) =>{
 
 
 
-
 const updateStorage = async (req, res) => {
     const Id = req.params.id;
     const { body, file } = req;
@@ -78,7 +77,6 @@ const updateStorage = async (req, res) => {
 
         // Si se sube un nuevo archivo, eliminar el archivo anterior
         if (file) {
-            // Ruta archivo anterior
             const pathStorage = path.join(__dirname, '../storage', storageData.filename);
 
             // Actualizar los datos
@@ -88,7 +86,6 @@ const updateStorage = async (req, res) => {
             // Eliminar el archivo físico anterior
             fs.unlink(pathStorage, (err) => {
                 if (err) {
-                    console.error("Error al eliminar el archivo físico anterior:", err);
                     return handleHttpError(res, "Error al eliminar el archivo físico");
 
                 } 
@@ -103,7 +100,6 @@ const updateStorage = async (req, res) => {
         handleHttpError(res, "Error al actualizar archivo");
     }
 };
-
 
 
 

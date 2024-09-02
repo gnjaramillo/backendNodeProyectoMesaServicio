@@ -11,7 +11,7 @@ const { tokenSign } = require("../utils/handleJwt.js");
 
 
 
-// tecnicos sin registro aprobado
+// tecnicos que requieren aprobacion
 const listaTecnicosPendientes = async (req,res)=>{
     
     try {
@@ -60,6 +60,7 @@ const aprobarTecnico = async (req,res) =>{
         handleHttpError(res, "Error al aprobar técnico", 500);
     }         
 }
+
 
 
 // denegar tecnico
@@ -111,6 +112,7 @@ const denegarTecnico = async (req, res) => {
 };
 
 
+
 // tecnicos aprobados
 const listaTecnicosAprobados = async (req,res)=>{    
     try {
@@ -129,4 +131,10 @@ const listaTecnicosAprobados = async (req,res)=>{
 } 
 
 
+
 module.exports = { listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados };
+
+
+
+
+//find siempre debe devolver un array,

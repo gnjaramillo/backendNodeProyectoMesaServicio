@@ -8,7 +8,8 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const jwt = require("jsonwebtoken");
 
 
-// http://localhost:3010/api/auth/register
+
+
 const registerCtrl = async (req, res) => {
     try {
         const { password, confirmPassword, rol, correo, ...rest } = req.body;
@@ -68,7 +69,6 @@ const registerCtrl = async (req, res) => {
 }
 
 
-// http://localhost:3010/api/auth/login
 const loginCtrl = async (req, res) => {
     try {
         const { correo, password } = req.body;
@@ -151,29 +151,32 @@ const verifyToken = async (req, res) => {
 }
 
 
-const createLogout = (req, res) => {
-    try {
-        // Limpiar la cookie del token
-        res.compareookie("token", "", {
-            expires: new Date(0)
-          
-        });
 
-        res.status(200).json({ message: "Sesión cerrada exitosamente" });
+const createLogout =  (req, res) => {
+
+    try {
+        
+        res.cookie("token", "", {
+            expires: new Date(0)
+        });
+        res.status(200).json({message: "Sesion cerrada exitosamente!"});
+
     } catch (error) {
         res.status(500).json({
-            message: "Error al cerrar sesión",
+            message: 'Error al cerrar la sesion',
             error: error.message
         });
     }
-};
+
+}
+
 
 module.exports = { registerCtrl, loginCtrl, verifyToken, createLogout };
 
 
 
 
-/* undefined a la propiedad password del objeto user: es útil para evitar 
+/* undefined a la propiedad password es útil para evitar 
 que la contraseña sea incluida en las respuestas HTTP o se registre 
 en los logs.  { strict: false } permite esta modificación, incluso si el 
 esquema de Mongoose tiene restricciones estrictas. */
