@@ -5,6 +5,8 @@ const uploadMiddleware = require("../utils/handleStorage");
 const checkRol = require('../middleware/rol');
 const authMiddleware = require('../middleware/session') 
 
+const { listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados } = require("../controllers/tecnicos");
+
 const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validators/usuarios");
 
 // http://localhost:3010/api/usuarios/

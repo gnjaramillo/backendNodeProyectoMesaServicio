@@ -15,3 +15,7 @@ router.put("/:id/denegarTecnico", denegarTecnico);
 router.get("/tecnicosPendientes", listaTecnicosPendientes);
 router.get("/tecnicosAprobados", listaTecnicosAprobados);
 
+module.exports = router;
+
+
+
