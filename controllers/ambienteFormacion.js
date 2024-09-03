@@ -17,7 +17,7 @@ const getAmbiente = async (req, res) => {
 const getAmbienteId = async (req, res) =>{
     try {
         const { id } = req.params;
-        const data = await ambienteModel.findOne({ _id: id, activo: true });
+        const data = await ambienteModel.findOne({ _id: id });
         if (!data) {
             handleHttpError(res, "Ambiente de formación no encontrado", 404);
             return;

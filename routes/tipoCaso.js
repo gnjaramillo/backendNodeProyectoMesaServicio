@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/session')
 
 const { getTipoCaso, getTipoCasoId, postTipoCaso,updateTipoCaso, deleteTipoCaso} = require("../controllers/tipoCaso");
 
-router.get("/", authMiddleware, checkRol(['lider']), getTipoCaso);
+router.get("/", authMiddleware, checkRol(['lider', 'tecnico']), getTipoCaso);
 router.get("/:id", authMiddleware, checkRol(['lider']), getTipoCasoId);
 router.post("/", authMiddleware, checkRol(['lider']), postTipoCaso);
 router.put("/:id",authMiddleware, checkRol(['lider']),  updateTipoCaso);

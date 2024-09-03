@@ -45,9 +45,29 @@ const getSolicitudId = async (req, res) => {
 };
 
 
+const deleteSolicitud = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await solicitudModel.findByIdAndDelete(id);
+        
+        if (!data) {
+            return res.status(404).json({ error: "Solicitud no encontrada" });
+        }
+
+        res.status(200).json({ message: "Solicitud eliminada exitosamente", data });
+        
+    } catch (error) {
+        console.error("Error al eliminar la solicitud:", error);
+        res.status(500).json({ error: "Error al eliminar la solicitud" });
+    }
+};
+
+
+
 
 // solicitudes realizadas por funcionarios, pendientes de ser asignadas 
 const getSolicitudesPendientes = async (req, res) => {
+
     try {
         const data = await solicitudModel.find({ estado: 'solicitado' })
             .select('descripcion telefono fecha estado')        
@@ -207,6 +227,6 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
 
 
-module.exports = { getSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas };
+module.exports = { getSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, deleteSolicitud };
 
 

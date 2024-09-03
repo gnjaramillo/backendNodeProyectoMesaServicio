@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfica de Solicitudes por Ambiente</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .chart-container {
+            width: 50%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        #ambientesChart {
+            width: 100%;
+            height: auto;
+        }
+
+        .report-info {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gráfica de Solicitudes por Ambiente</h1>
+    <h3>Mesa de Ayuda TICs</h3>
+    <div class="report-info">
+        <p id="reportDate"></p>
+        <label for="yearSelect">Seleccione el año del reporte:</label>
+        <select id="yearSelect"></select>
+    </div>
+    <div class="chart-container">
+        <canvas id="ambientesChart"></canvas>
+    </div>
+
+    <script>
+        // Obtener el año actual y mostrar en el selector
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('yearSelect');
+
+        for (let year = currentYear; year >= 2023; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        // Mostrar la fecha de impresión del reporte
+        document.getElementById('reportDate').textContent = `Reporte generado el: ${new Date().toLocaleDateString()} {-(${currentYear})`;
+
+        // Función para cargar el reporte basado en el año seleccionado
+        function loadReport(year) {
+            fetch(`/api/solicitudesPorAmbientes?year=${year}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.data.map(item => item.nombre);
+                    const values = data.data.map(item => item.cantidad);
+
+                    const ctx = document.getElementById('ambientesChart').getContext('2d');
+                    const chart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `Solicitudes por Ambiente (${year})`,
+                                data: values,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                },
+                                tooltip: {
+                                    enabled: true, // Mantiene las tooltips en hover, si lo deseas
+                                },
+
+                                datalabels: {
+                                    color: '#000', // Color de las etiquetas
+                                    font: {
+                                        weight: 'bold',
+                                        size: 12 // Ajusta el tamaño de la fuente si es necesario
+                                    },
+                                    formatter: (value, ctx) => {
+                                        let percentage = (value * 100 / values.reduce((a, b) => a + b, 0)).toFixed(0) + "%";
+                                        return [`${value} `, `(${percentage})`]; 
+                                    },
+                                    anchor: 'end',  // Mueve las etiquetas hacia la orilla del gráfico
+                                    align: 'start',   // Alinea las etiquetas hacia fuera del sector
+                                    offset: 10, // Ajusta la distancia desde el centro
+                                    padding: {
+                                        top: 10,
+                                        bottom: 10
+                                    }
+                                }
+                            }
+                        },
+                        plugins: [ChartDataLabels]
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Cargar el reporte inicial para el año actual
+        loadReport(currentYear);
+
+        // Actualizar el reporte cuando se seleccione otro año
+        yearSelect.addEventListener('change', function () {
+            loadReport(this.value);
+        });
+    </script>
+</body>
+
+</html>

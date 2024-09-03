@@ -8,7 +8,7 @@ const authMiddleware = require('../middleware/session')
 const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validators/usuarios");
 
 // http://localhost:3010/api/usuarios/
-
+// http://localhost:3010/api/usuarios/perfil
 
 
 // Rutas generales de usuarios

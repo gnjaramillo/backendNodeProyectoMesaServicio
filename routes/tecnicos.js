@@ -13,4 +13,7 @@ router.get("/tecnicosAprobados", authMiddleware, checkRol(['lider']), listaTecni
 router.put("/:id/aprobarTecnico",authMiddleware, checkRol(['lider']), aprobarTecnico);
 router.put("/:id/denegarTecnico",authMiddleware, checkRol(['lider']), denegarTecnico);
 
+
+
+
 module.exports = router;
