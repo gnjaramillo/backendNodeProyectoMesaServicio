@@ -59,7 +59,7 @@ const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
 
 const app = express();
-
+// tu servidor Express permite solicitudes desde cualquier origen
 app.use(cors({
   origin: [process.env.FRONTEND_URL],
   credentials: true,
@@ -69,6 +69,8 @@ app.use(cors({
 }));
 app.use(morgan("dev"));
 app.use(express.json());
+
+// Middleware para analizar cuerpos de formularios URL-encoded
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -78,6 +80,10 @@ app.use('/media', express.static(path.join(__dirname, 'media')));
 app.set('view engine', 'ejs');
 
 app.set('views', path.join(__dirname, 'views'));
+
+// los recursos publicos salen de la carpeta storage
+app.use(express.static("storage"))
+
 
 // Invocar rutas
 app.use("/api", require("./routes"));

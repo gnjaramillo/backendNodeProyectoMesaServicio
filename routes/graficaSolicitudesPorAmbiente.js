@@ -5,11 +5,11 @@ const { getSolicitudesPorAmbientes } = require("../controllers/graficaSolicitude
 
 
 /*  Ruta para obtener las solicitudes por ambiente
- http://localhost:3010/api/solicitudesPorAmbientes 
+ http://localhost:3010/api/graficaSolicitudesPorAmbiente 
 
 
  Ruta para obtener la grafica
- http://localhost:3010/solicitudesPorAmbientes.html  */
+ http://localhost:3010/graficaSolicitudesPorAmbientes.html  */
  
 
 router.get("/", getSolicitudesPorAmbientes); 
