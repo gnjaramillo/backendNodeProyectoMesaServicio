@@ -60,7 +60,7 @@
 
         // Función para cargar el reporte basado en el año seleccionado
         function loadReport(year) {
-            fetch(`/api/solicitudesPorAmbientes?year=${year}`)
+            fetch(`/api/graficaSolicitudesPorAmbiente?year=${year}`)
                 .then(response => response.json())
                 .then(data => {
                     const labels = data.data.map(item => item.nombre);

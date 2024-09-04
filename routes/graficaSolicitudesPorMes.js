@@ -5,7 +5,7 @@ const router = express.Router();
 
 
 /* Ruta para obtener las solicitudes por mes:
-http://localhost:3010/api/GraficaSolicitudesPorMes
+http://localhost:3010/api/graficaSolicitudesPorMes
 
 
 Ruta para obtener la grafica de las solicitudes por mes

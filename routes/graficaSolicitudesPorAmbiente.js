@@ -9,7 +9,7 @@ const { getSolicitudesPorAmbientes } = require("../controllers/graficaSolicitude
 
 
  Ruta para obtener la grafica
- http://localhost:3010/graficaSolicitudesPorAmbientes.html  */
+ http://localhost:3010/solicitudesPorAmbiente.html  */
  
 
 router.get("/", getSolicitudesPorAmbientes); 

@@ -89,7 +89,7 @@
         //reportDate.textContent = `Reporte generado el: ${new Date().toLocaleDateString()} (${currentYear})`;
 
         function loadReport(year) {
-            fetch(`/api/solicitudesPorMes?year=${year}`)
+            fetch(`/api/graficaSolicitudesPorMes?year=${year}`)
                 .then(response => response.json())
                 .then(data => {
                     const labels = data.data.map(item => monthNames[item._id - 1]);
