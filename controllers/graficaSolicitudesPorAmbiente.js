@@ -8,6 +8,7 @@ const getSolicitudesPorAmbientes = async (req, res) => {
     const end = new Date(`${year + 1}-01-01T00:00:00.000Z`);
 
     try {
+        // Agregación para contar solicitudes por ambiente
         const data = await solicitudModel.aggregate([
             {
                 $match: {
@@ -29,23 +30,21 @@ const getSolicitudesPorAmbientes = async (req, res) => {
                 }
             },
             {
-                $unwind: "$ambiente"
-            },
-            {
-                $group: {
-                    _id: "$ambiente.nombre",
-                    cantidad: { $sum: "$cantidad" }
+                $unwind: {
+                    path: "$ambiente",
+                    preserveNullAndEmptyArrays: true // Preserva documentos que no tienen un ambiente relacionado
                 }
             },
             {
                 $project: {
                     _id: 0,
-                    nombre: "$_id",
-                    cantidad: "$cantidad"
+                    nombre: { $ifNull: ["$ambiente.nombre", "Ambiente Eliminado"] }, // Nombre o "Ambiente Eliminado"
+                    cantidad: "$cantidad",
+                    activo: "$ambiente.activo" // Incluye el estado del ambiente
                 }
             },
             {
-                $sort: { "cantidad": -1 }
+                $sort: { cantidad: -1 } // Ordenar por la cantidad de solicitudes, de mayor a menor
             }
         ]);
 
@@ -54,5 +53,6 @@ const getSolicitudesPorAmbientes = async (req, res) => {
         handleHttpError(res, "Error al obtener datos agregados por ambiente");
     }
 };
+
 
 module.exports = { getSolicitudesPorAmbientes };

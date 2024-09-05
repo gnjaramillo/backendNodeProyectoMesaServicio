@@ -1,6 +1,5 @@
 
 
-
 const { solicitudModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 
@@ -10,6 +9,7 @@ const getSolicitudesPorMes = async (req, res) => {
     const end = new Date(`${year + 1}-01-01T00:00:00.000Z`);
 
     try {
+        // Agregación para obtener el total de solicitudes por mes
         const data = await solicitudModel.aggregate([
             {
                 $match: {
@@ -18,16 +18,22 @@ const getSolicitudesPorMes = async (req, res) => {
             },
             {
                 $group: {
-                    _id: { $month: "$fecha" },
-                    cantidad: { $sum: 1 }
+                    _id: { $month: "$fecha" }, // Agrupa por mes
+                    cantidad: { $sum: 1 } // Suma la cantidad de solicitudes por mes
                 }
             },
             {
-                $sort: { "_id": 1 }
+                $sort: { "_id": 1 } // Ordena los resultados por mes
             }
         ]);
 
-        res.status(200).json({ message: "Datos obtenidos correctamente", data });
+        // Agregación para obtener el total de solicitudes en el año
+        const totalSolicitudes = await solicitudModel.countDocuments({
+            fecha: { $gte: start, $lt: end }
+        });
+
+        // Responder con los datos de la gráfica y el total de solicitudes
+        res.status(200).json({ message: "Datos obtenidos correctamente", data, totalSolicitudes });
     } catch (error) {
         handleHttpError(res, "Error al obtener datos agregados por mes");
     }

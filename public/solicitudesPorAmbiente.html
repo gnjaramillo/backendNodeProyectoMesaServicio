@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,38 +11,71 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
-
         .chart-container {
             width: 50%;
             max-width: 600px;
             margin: 0 auto;
             padding: 30px;
         }
-
         #ambientesChart {
             width: 100%;
             height: auto;
         }
-
         .report-info {
             margin: 10px 0;
         }
+        #totalSolicitudes {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
-
 <body>
     <h1>Gráfica de Solicitudes por Ambiente</h1>
     <h3>Mesa de Ayuda TICs</h3>
     <div class="report-info">
-        <p id="reportDate"></p>
         <label for="yearSelect">Seleccione el año del reporte:</label>
         <select id="yearSelect"></select>
+        <p id="totalSolicitudes"></p>
     </div>
+
     <div class="chart-container">
         <canvas id="ambientesChart"></canvas>
     </div>
 
+    <div class="table-container">
+        <h3>Tabla de Solicitudes por Ambiente</h3>
+        <table id="solicitudesTable">
+            <thead>
+                <tr>
+                    <th>Ambiente</th>
+                    <th>Número de Solicitudes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las filas de la tabla se insertarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
     <script>
+        let chart; // Variable para almacenar la gráfica
+
         // Obtener el año actual y mostrar en el selector
         const currentYear = new Date().getFullYear();
         const yearSelect = document.getElementById('yearSelect');
@@ -55,8 +87,6 @@
             yearSelect.appendChild(option);
         }
 
-        // Mostrar la fecha de impresión del reporte
-        document.getElementById('reportDate').textContent = `Reporte generado el: ${new Date().toLocaleDateString()} {-(${currentYear})`;
 
         // Función para cargar el reporte basado en el año seleccionado
         function loadReport(year) {
@@ -66,8 +96,16 @@
                     const labels = data.data.map(item => item.nombre);
                     const values = data.data.map(item => item.cantidad);
 
+                    // Calcular el total de solicitudes
+                    const totalSolicitudes = values.reduce((total, cantidad) => total + cantidad, 0);
+                    document.getElementById('totalSolicitudes').textContent = `Total solicitudes: ${totalSolicitudes}`;
+
+                    // Actualizar gráfica
                     const ctx = document.getElementById('ambientesChart').getContext('2d');
-                    const chart = new Chart(ctx, {
+                    if (chart) {
+                        chart.destroy(); // Destruir la gráfica anterior si existe
+                    }
+                    chart = new Chart(ctx, {
                         type: 'pie',
                         data: {
                             labels: labels,
@@ -101,30 +139,34 @@
                                     position: 'bottom',
                                 },
                                 tooltip: {
-                                    enabled: true, // Mantiene las tooltips en hover, si lo deseas
+                                    enabled: true,
                                 },
-
                                 datalabels: {
-                                    color: '#000', // Color de las etiquetas
+                                    color: '#000',
                                     font: {
                                         weight: 'bold',
-                                        size: 12 // Ajusta el tamaño de la fuente si es necesario
-                                    },
-                                    formatter: (value, ctx) => {
-                                        let percentage = (value * 100 / values.reduce((a, b) => a + b, 0)).toFixed(0) + "%";
-                                        return [`${value} `, `(${percentage})`]; 
-                                    },
-                                    anchor: 'end',  // Mueve las etiquetas hacia la orilla del gráfico
-                                    align: 'start',   // Alinea las etiquetas hacia fuera del sector
-                                    offset: 10, // Ajusta la distancia desde el centro
-                                    padding: {
-                                        top: 10,
-                                        bottom: 10
+                                        size: 12
                                     }
                                 }
                             }
                         },
-                        plugins: [ChartDataLabels]
+                    });
+
+                    // Actualizar tabla
+                    const tableBody = document.querySelector('#solicitudesTable tbody');
+                    tableBody.innerHTML = ''; // Limpiar tabla antes de llenarla
+
+                    data.data.forEach(item => {
+                        const row = document.createElement('tr');
+                        const ambienteCell = document.createElement('td');
+                        const cantidadCell = document.createElement('td');
+
+                        ambienteCell.textContent = item.nombre || 'Desconocido';
+                        cantidadCell.textContent = item.cantidad;
+
+                        row.appendChild(ambienteCell);
+                        row.appendChild(cantidadCell);
+                        tableBody.appendChild(row);
                     });
                 })
                 .catch(error => console.error('Error fetching data:', error));
@@ -139,5 +181,4 @@
         });
     </script>
 </body>
-
 </html>

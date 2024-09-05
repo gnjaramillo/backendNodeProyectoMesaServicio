@@ -13,10 +13,9 @@ const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validato
 
 // Rutas generales de usuarios
 router.get("/", getUsuarios);
-router.get("/perfil", authMiddleware, getPerfilUsuario);
-router.put("/perfil", authMiddleware, uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
+router.get("/perfil", authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), getPerfilUsuario);
+router.put("/perfil", authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
 router.get("/:id", validatorGetUsuariosId, getUsuariosId);
-// router.put("/:id", authMiddleware, uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
 router.delete("/:id", validatorGetUsuariosId, deleteUsuarios);
 
 module.exports = router;

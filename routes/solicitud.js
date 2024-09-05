@@ -26,7 +26,7 @@ router.get("/pendientes", authMiddleware, checkRol(['lider']), getSolicitudesPen
 router.get("/asignadas", authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas);
 
 // http://localhost:3010/api/solicitud/
-router.post("/", authMiddleware, uploadMiddleware.single("foto"), checkRol(['funcionario']), validarSolicitud, crearSolicitud);
+router.post("/", authMiddleware,  checkRol(['funcionario']), uploadMiddleware.single("foto"), validarSolicitud, crearSolicitud);
 router.get("/:id", getSolicitudId); 
 router.delete("/:id", deleteSolicitud); 
 

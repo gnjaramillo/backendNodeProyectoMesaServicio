@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { getSolicitudesPorAmbientes } = require("../controllers/graficaSolicitudesPorAmbiente"); 
+const authMiddleware = require('../middleware/session')
+const checkRol = require('../middleware/rol')
 
 
 
@@ -12,6 +14,6 @@ const { getSolicitudesPorAmbientes } = require("../controllers/graficaSolicitude
  http://localhost:3010/solicitudesPorAmbiente.html  */
  
 
-router.get("/", getSolicitudesPorAmbientes); 
+router.get("/", authMiddleware, checkRol(['lider']), getSolicitudesPorAmbientes); 
 
 module.exports = router;

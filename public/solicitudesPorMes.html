@@ -1,5 +1,4 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -13,14 +12,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Centra verticalmente todo el contenido */
+            justify-content: center;
             height: 100vh;
             margin: 0;
             background-color: #f4f4f4;
-            text-align: center; /* Asegura que todo el texto dentro de los elementos esté centrado */
+            text-align: center;
         }
 
-        h1, h3, label, p {
+        h1,
+        h3,
+        label,
+        p {
             margin: 0;
             padding: 10px 0;
         }
@@ -38,6 +40,11 @@
         .controls {
             margin-bottom: 20px;
         }
+
+        #totalSolicitudes {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -48,6 +55,7 @@
         <label for="yearSelect">Seleccione el año:</label>
         <select id="yearSelect"></select>
         <p id="reportDate"></p>
+        <p id="totalSolicitudes"></p>
     </div>
     <div class="container">
         <canvas id="solicitudesChart"></canvas>
@@ -76,17 +84,17 @@
         const currentYear = new Date().getFullYear();
         const yearSelect = document.getElementById('yearSelect');
         const reportDate = document.getElementById('reportDate');
+        const totalSolicitudesElement = document.getElementById('totalSolicitudes');
+
+        let chart;
 
         // Generar opciones de años
-        for (let year = currentYear; year >= 2020; year--) {
+        for (let year = currentYear; year >= 2023; year--) {
             const option = document.createElement('option');
             option.value = year;
             option.textContent = year;
             yearSelect.appendChild(option);
         }
-
-        // Mostrar la fecha de generación del reporte
-        //reportDate.textContent = `Reporte generado el: ${new Date().toLocaleDateString()} (${currentYear})`;
 
         function loadReport(year) {
             fetch(`/api/graficaSolicitudesPorMes?year=${year}`)
@@ -95,13 +103,21 @@
                     const labels = data.data.map(item => monthNames[item._id - 1]);
                     const values = data.data.map(item => item.cantidad);
 
+                    // Actualizar el subtítulo con el total de solicitudes
+                    totalSolicitudesElement.textContent = `Total Solicitudes: ${data.totalSolicitudes}`;
+
+                    // Destruir la gráfica anterior si existe
+                    if (chart) {
+                        chart.destroy();
+                    }
+
                     const ctx = document.getElementById('solicitudesChart').getContext('2d');
-                    const chart = new Chart(ctx, {
+                    chart = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: `Número de Solicitudes en ${year}`,
+                                // label: `Número de Solicitudes en ${year}`, // Elimina o comenta esta línea
                                 data: values,
                                 backgroundColor: colors,
                                 borderColor: borderColor,
@@ -109,6 +125,11 @@
                             }]
                         },
                         options: {
+                            plugins: {
+                                legend: {
+                                    display: false // Esto desactiva la leyenda
+                                }
+                            },
                             scales: {
                                 y: {
                                     beginAtZero: true,

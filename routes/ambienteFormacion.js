@@ -8,8 +8,8 @@ const {getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, deleteAmbiente 
 
 //http://localhost:3010/api/ambienteFormacion/
 
-router.get("/", authMiddleware, checkRol(['lider']), getAmbiente);
-router.get("/:id", authMiddleware, checkRol(['lider']), getAmbienteId);
+router.get("/", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbiente);
+router.get("/:id", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbienteId);
 router.post("/", authMiddleware, checkRol(['lider']), postAmbiente);
 router.put("/:id", authMiddleware, checkRol(['lider']),  updateAmbiente);
 router.delete("/:id", authMiddleware, checkRol(['lider']),  deleteAmbiente);
