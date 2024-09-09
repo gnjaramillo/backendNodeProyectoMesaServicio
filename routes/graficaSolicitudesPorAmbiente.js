@@ -14,6 +14,8 @@ const checkRol = require('../middleware/rol')
  http://localhost:3010/solicitudesPorAmbiente.html  */
  
 
-router.get("/", authMiddleware, checkRol(['lider']), getSolicitudesPorAmbientes); 
+router.get("/",  getSolicitudesPorAmbientes); 
 
 module.exports = router;
+
+// authMiddleware, checkRol(['lider']),

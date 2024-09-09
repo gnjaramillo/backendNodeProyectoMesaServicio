@@ -14,6 +14,8 @@ Ruta para obtener la grafica de las solicitudes por mes
 http://localhost:3010/solicitudesPorMes.html */
 
 
-router.get("/", authMiddleware, checkRol(['lider']), getSolicitudesPorMes);
+router.get("/", getSolicitudesPorMes);
 
 module.exports = router;
+
+//authMiddleware, checkRol(['lider']), 

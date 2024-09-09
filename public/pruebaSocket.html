@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Socket.IO</title>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+</head>
+<body>
+    <script>
+        // Cambia esta URL a la dirección de tu servidor
+        const socket = io('http://localhost:3010'); // Usa la URL de tu servidor
+
+        socket.on('connect', function() {
+            console.log("Conexión WebSocket establecida");
+
+            // Envía un mensaje al servidor
+            const mensaje = { mensaje: "Hola servidor, conexión establecida" };
+            socket.emit('mensaje', mensaje);
+        });
+
+        socket.on('respuesta', function(data) {
+            console.log("Mensaje recibido del servidor:", data);
+        });
+
+        socket.on('disconnect', function() {
+            console.log("Conexión WebSocket cerrada");
+        });
+
+        socket.on('error', function(error) {
+            console.error("Error en WebSocket:", error);
+        });
+    </script>
+</body>
+</html>

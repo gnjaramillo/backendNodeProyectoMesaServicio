@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require('../middleware/session')
 const checkRol = require('../middleware/rol')
-const {getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, deleteAmbiente } = require("../controllers/ambienteFormacion")
+const {getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, inactivarAmbiente } = require("../controllers/ambienteFormacion")
 
 
 
@@ -12,7 +12,7 @@ router.get("/", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbiente
 router.get("/:id", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbienteId);
 router.post("/", authMiddleware, checkRol(['lider']), postAmbiente);
 router.put("/:id", authMiddleware, checkRol(['lider']),  updateAmbiente);
-router.delete("/:id", authMiddleware, checkRol(['lider']),  deleteAmbiente);
+router.put("/:id", authMiddleware, checkRol(['lider']),  inactivarAmbiente);
 
 module.exports = router;
 

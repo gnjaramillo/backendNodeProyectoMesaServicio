@@ -27,9 +27,13 @@ const usuarioSchema = new mongoose.Schema({
         required: true,
         select: false //ocultar contraseña en las consultas
     },
+    activo: {
+        type: Boolean,
+        default: true //  indica si el usuario está activo o inactivo
+    },
     estado: {
         type: Boolean,
-        default: false // false para técnico, true otros roles (estado de aprobación de registro)
+        default: false // para rol técnico (estado de aprobación de registro)
     },   
     foto: {
         type: mongoose.Schema.Types.ObjectId, // ID colección storage almacena la imagen

@@ -1,3 +1,5 @@
+// recuperarPassword.js
+
 const crypto = require('crypto');
 const { usuarioModel } = require('../models'); 
 const { sendMail } = require('../utils/handleEmail');

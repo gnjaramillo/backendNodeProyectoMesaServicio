@@ -1,3 +1,5 @@
+// restablecerPassword.js
+
 const crypto = require('crypto');
 const { usuarioModel } = require('../models');
 const bcrypt = require('bcryptjs');

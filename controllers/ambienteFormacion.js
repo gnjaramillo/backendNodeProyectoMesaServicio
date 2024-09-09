@@ -66,7 +66,7 @@ const updateAmbiente = async(req, res) => {
 
 
 
-const deleteAmbiente = async(req, res) => {
+const inactivarAmbiente = async(req, res) => {
     const ambienteId = req.params.id;
 
     try {
@@ -91,7 +91,7 @@ const deleteAmbiente = async(req, res) => {
 
 
 
-module.exports = { getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, deleteAmbiente };
+module.exports = { getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, inactivarAmbiente };
 
 
 

@@ -3,7 +3,10 @@ const { handleHttpError } = require("../utils/handleError");
 const {postConsecutivoCaso} = require("../controllers/consecutivoCaso")
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const transporter = require('../utils/handleEmail');
+// Importar socket.io
+const { io } = require('../utils/handleSocket'); 
 
+// Emitir evento al asignar técnico
 
 
 
@@ -15,7 +18,7 @@ const getSolicitud = async (req, res) => {
             .populate('tecnico', 'nombre')
             .populate('foto', 'url filename')
 
-            res.status(200).json({ message: "solicitud consultado exitosamente", data });
+            res.status(200).json({ message: "solicitudes consultadas exitosamente", data });
         } catch (error) {
         handleHttpError(res, "error al obtener datos");
     }
@@ -166,8 +169,8 @@ const asignarTecnicoSolicitud = async (req, res) => {
             return res.status(404).json({ message: 'Solicitud no encontrada' });
         }
 
-        const tecnicoaprobado = await usuarioModel.findOne({ _id: tecnico, rol: 'tecnico', estado: true });
-        if (!tecnicoaprobado) {
+        const tecnicoAsignado = await usuarioModel.findOne({ _id: tecnico, rol: 'tecnico', estado: true });
+        if (!tecnicoAsignado) {
             return res.status(404).json({ message: 'Técnico no encontrado o no aprobado' });
         }
 
@@ -176,8 +179,10 @@ const asignarTecnicoSolicitud = async (req, res) => {
         solicitud.estado = 'asignado';
         await solicitud.save();
 
-
-        const tecnicoAsignado = await usuarioModel.findById(solicitud.tecnico)
+        // ---------Emitir evento para actualizar la vista del funcionario
+        io.emit('actualizarSolicitud', { solicitudId: solicitud._id, estado: solicitud.estado });
+        
+        // const tecnicoAsignado = await usuarioModel.findById(solicitud.tecnico)
 
         transporter.sendMail({
             from: process.env.EMAIL,
@@ -199,6 +204,7 @@ const asignarTecnicoSolicitud = async (req, res) => {
         res.status(500).json({ message: 'Error al asignar técnico', error: error.message });
     }
 };
+
 
 
 

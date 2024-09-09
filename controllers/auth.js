@@ -75,15 +75,21 @@ const loginCtrl = async (req, res) => {
 
 
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado').populate('foto', 'url')
+        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado activo').populate('foto', 'url')
        
         if (!user) {
             return handleHttpError(res, "usuario no existe", 404);
         }
 
-        // Verificar si el usuario es Técnico y si su estado es false
+        // Verificar si el usuario es Técnico y si su estado de registro es false
         if (user.rol === 'tecnico' && user.estado === false) {
             return res.status(403).send({ message: `Su registro se encuentra sujeto a aprobación
+                por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
+        }
+
+        // ------------ Verificar si el usuario se encuentra activo
+        if (user.activo === false) {
+            return res.status(403).send({ message: `En el momento su ingreso se encuentra inactivado
                 por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
         }
 

@@ -2,8 +2,8 @@ const { solicitudModel, storageModel, usuarioModel, solucionCasoModel } = requir
 const { handleHttpError } = require("../utils/handleError");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const transporter = require('../utils/handleEmail');
-
-
+// Importar socket.io
+const { io } = require('../utils/handleSocket'); 
 
 
 // dar solucion a solicitud (caso)
@@ -17,6 +17,8 @@ const solucionCaso = async (req, res) => {
         if (!solicitud) {
             return res.status(404).send({ message: 'Solicitud no encontrada' });
         }
+
+        console.log(solicitud)
 
         let fotoId;
 
@@ -63,6 +65,9 @@ const solucionCaso = async (req, res) => {
 
         // Guardar la solicitud y registrar la solución
         await solicitud.save();
+
+        //----------- Emitir evento WebSocket para notificar a los clientes
+        io.emit('actualizarSolicitud', { solicitudId: solicitud._id, estado: solicitud.estado });
 
         const datasolucion = {
             ...body,

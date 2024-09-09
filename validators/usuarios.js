@@ -18,7 +18,7 @@ const validatorUpdateUsuarios = [
     }
 ];
 
-const validatorGetUsuariosId = [
+const validatorUsuariosId = [
     check("id").isMongoId().exists().notEmpty().trim().escape().withMessage("El id es requerido"),
     (req, res, next) => {
         validateResults(req, res, next); 
@@ -27,7 +27,7 @@ const validatorGetUsuariosId = [
 
 
 
-module.exports = { validatorUpdateUsuarios, validatorGetUsuariosId };
+module.exports = { validatorUpdateUsuarios, validatorUsuariosId };
 
 
 /* Las validaciones alidar y sanitizar los datos de las solicitudes HTTP. 
