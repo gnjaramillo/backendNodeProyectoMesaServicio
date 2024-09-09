@@ -1,29 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, getPerfilUsuario, getUsuariosId, updateUsuarios, deleteUsuarios } = require("../controllers/usuarios");
+const { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios,  reactivarUsuarios } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
 const checkRol = require('../middleware/rol');
 const authMiddleware = require('../middleware/session') 
 
-const { listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados } = require("../controllers/tecnicos");
-
-const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validators/usuarios");
+const { validatorUpdateUsuarios, validatorUsuariosId } = require("../validators/usuarios");
 
 // http://localhost:3010/api/usuarios/
+// http://localhost:3010/api/usuarios/perfil
+// http://localhost:3010/api/usuarios/:idUsuario/inactivar
+// http://localhost:3010/api/usuarios/:idUsuario/reactivar
 
-// Rutas específicas para técnicos
-router.put("/:id/aprobarTecnico", aprobarTecnico);
-router.put("/:id/denegarTecnico", denegarTecnico);
-router.get("/tecnicosPendientes", listaTecnicosPendientes);
-router.get("/tecnicosAprobados", listaTecnicosAprobados);
 
 // Rutas generales de usuarios
 router.get("/", getUsuarios);
-router.get("/perfil", authMiddleware, getPerfilUsuario);
-router.put("/perfil", authMiddleware, uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
-router.get("/:id", validatorGetUsuariosId, getUsuariosId);
-// router.put("/:id", authMiddleware, uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
-router.delete("/:id", validatorGetUsuariosId, deleteUsuarios);
+router.get("/perfil", authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), getPerfilUsuario);
+router.put("/perfil", authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
+router.get("/:id", validatorUsuariosId, getUsuariosId);
+router.put("/:id/inactivar", authMiddleware, checkRol(['lider']), validatorUsuariosId, inactivarUsuarios);
+router.put("/:id/reactivar", authMiddleware, checkRol(['lider']), validatorUsuariosId, reactivarUsuarios);
 
 module.exports = router;
 

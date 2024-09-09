@@ -1,11 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { forgotPassword, resetPassword } = require("../controllers/recuperarPassword");
+const { forgotPassword } = require("../controllers/recuperarPassword");
 
-// Ruta para solicitar restablecimiento de contraseña (envío de correo con token)
+
+
+// Ruta para solicitar restablecimiento de contraseña (se envia correo registrado para obtener url con token)
+
+
+// http://localhost:3010/api/recuperarPassword/
 router.post("/", forgotPassword);
 
-// Ruta para restablecer la contraseña con el token
-router.post("/:token", resetPassword);
+
 
 module.exports = router;

@@ -2,31 +2,35 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require('../middleware/session');
 const checkRol = require('../middleware/rol');
-const { getSolicitudId, getSolicitud, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas } = require("../controllers/solicitud");
+const { 
+    getSolicitudId, 
+    getSolicitud, 
+    getSolicitudesPendientes, 
+    crearSolicitud, 
+    asignarTecnicoSolicitud, 
+    getSolicitudesAsignadas, 
+    deleteSolicitud 
+} = require("../controllers/solicitud");
 const uploadMiddleware = require("../utils/handleStorage");
+const { validarSolicitud } = require("../validators/solicitud");
 
+
+
+// Ruta para obtener todas las solicitudes
+router.get("/", getSolicitud); 
+
+// http://localhost:3010/api/solicitud/pendientes (lider)
+router.get("/pendientes", authMiddleware, checkRol(['lider']), getSolicitudesPendientes); 
+
+// http://localhost:3010/api/solicitud/asignadas (técnico)
+router.get("/asignadas", authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas);
 
 // http://localhost:3010/api/solicitud/
-router.get("/", getSolicitud); 
-router.post("/", authMiddleware, uploadMiddleware.single("foto"),  checkRol(['funcionario']), crearSolicitud); 
-
-// http://localhost:3010/api/solicitud/pendientes
-router.get("/pendientes", getSolicitudesPendientes); 
-
-
-// http://localhost:3010/api/solicitud/asignadas
-router.get("/asignadas",  authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas);  
+router.post("/", authMiddleware,  checkRol(['funcionario']), uploadMiddleware.single("foto"), validarSolicitud, crearSolicitud);
 router.get("/:id", getSolicitudId); 
+router.delete("/:id", deleteSolicitud); 
 
-
-
-// http://localhost:3010/api/solicitud/:id/asignarTecnico
-router.put("/:id/asignarTecnico", asignarTecnicoSolicitud); 
+// http://localhost:3010/api/:idSolicitud/asignarTecnico (lider)
+router.put("/:id/asignarTecnico", authMiddleware, checkRol(['lider']), asignarTecnicoSolicitud); 
 
 module.exports = router;
-
-
-
-// checkRol(['funcionario']),
-
-

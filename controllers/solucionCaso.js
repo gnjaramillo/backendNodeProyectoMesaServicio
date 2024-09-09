@@ -2,11 +2,11 @@ const { solicitudModel, storageModel, usuarioModel, solucionCasoModel } = requir
 const { handleHttpError } = require("../utils/handleError");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const transporter = require('../utils/handleEmail');
+// Importar socket.io
+const { io } = require('../utils/handleSocket'); 
 
 
-
-
-// dar solucion a solicitud 
+// dar solucion a solicitud (caso)
 const solucionCaso = async (req, res) => {
     const { id } = req.params; // id de la solicitud
     const { body } = req;
@@ -17,6 +17,8 @@ const solucionCaso = async (req, res) => {
         if (!solicitud) {
             return res.status(404).send({ message: 'Solicitud no encontrada' });
         }
+
+        console.log(solicitud)
 
         let fotoId;
 
@@ -42,7 +44,7 @@ const solucionCaso = async (req, res) => {
             solicitud.estado = 'finalizado';
             await solicitud.save();
 
-            // Enviar correo de notificación solo si el estado es 'finalizado'
+            // Enviar correo de notificación si el estado es 'finalizado'
             const usuario = await usuarioModel.findById(solicitud.usuario); 
 
             await transporter.sendMail({
@@ -58,12 +60,14 @@ const solucionCaso = async (req, res) => {
                     <p>Equipo de Mesa de Servicio - CTPI-CAUCA</p> `
             });
 
-            // Enviar respuesta y salir de la función
             return res.status(200).send({ message: "Caso cerrado exitosamente" });
         }
 
         // Guardar la solicitud y registrar la solución
         await solicitud.save();
+
+        //----------- Emitir evento WebSocket para notificar a los clientes
+        io.emit('actualizarSolicitud', { solicitudId: solicitud._id, estado: solicitud.estado });
 
         const datasolucion = {
             ...body,
@@ -79,5 +83,7 @@ const solucionCaso = async (req, res) => {
         return handleHttpError(res, "Error al registrar la solución del caso");
     }
 };
+
+
 
 module.exports = {  solucionCaso };

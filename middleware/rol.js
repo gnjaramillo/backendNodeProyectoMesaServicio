@@ -2,17 +2,15 @@ const {handleHttpError} = require ("../utils/handleError.js");
 
 
 // array con los roles permitidos
-
 const checkRol = (roles) => (req, res, next)=>{
     
 
     try {
         const {usuario} = req // establecido en session.js
-        // console.log({usuario})
         const rolesUsuario = usuario.rol
         // console.log({rolesUsuario})
+        // console.log('Usuario autenticado:', req.usuario);
 
-        // devuelve un true o false sobre el rol
 
         const checkRolValido = roles.some((rolSingle) => rolesUsuario.includes(rolSingle) )
         if (!checkRolValido) {
@@ -28,3 +26,4 @@ const checkRol = (roles) => (req, res, next)=>{
 }
 
 module.exports = checkRol
+

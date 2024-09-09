@@ -26,6 +26,9 @@ const authMiddleware = async (req, res, next) => {
         const usuario = await usuarioModel.findById(dataToken._id)
         req.usuario = usuario
 
+        console.log('Usuario autenticado:', req.usuario);
+
+
         next()
         
     } catch (error) {

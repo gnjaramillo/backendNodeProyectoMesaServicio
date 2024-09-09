@@ -8,7 +8,8 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const jwt = require("jsonwebtoken");
 
 
-// http://localhost:3010/api/auth/register
+
+
 const registerCtrl = async (req, res) => {
     try {
         const { password, confirmPassword, rol, correo, ...rest } = req.body;
@@ -68,23 +69,27 @@ const registerCtrl = async (req, res) => {
 }
 
 
-// http://localhost:3010/api/auth/login
 const loginCtrl = async (req, res) => {
     try {
         const { correo, password } = req.body;
 
 
         // Encontrar el usuario por su correo y seleccionar la contraseña
-        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado').populate("foto");
-        console.log(user)
+        const user = await usuarioModel.findOne({ correo }).select('password correo rol estado activo').populate('foto', 'url')
        
         if (!user) {
             return handleHttpError(res, "usuario no existe", 404);
         }
 
-        // Verificar si el usuario es Técnico y si su estado es false
+        // Verificar si el usuario es Técnico y si su estado de registro es false
         if (user.rol === 'tecnico' && user.estado === false) {
             return res.status(403).send({ message: `Su registro se encuentra sujeto a aprobación
+                por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
+        }
+
+        // ------------ Verificar si el usuario se encuentra activo
+        if (user.activo === false) {
+            return res.status(403).send({ message: `En el momento su ingreso se encuentra inactivado
                 por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
         }
 
@@ -102,10 +107,7 @@ const loginCtrl = async (req, res) => {
 
         // Si todo está bien, se devuelve el token de sesión y la data del usuario
         user.set('password', undefined, {strict:false}) // oculta contraseña
-
-
-        //nuevo------------------------
-        const token = await tokenSign(user)
+        const token = await tokenSign(user);
         const dataUser = {
             token: await tokenSign(user),
             user
@@ -154,6 +156,8 @@ const verifyToken = async (req, res) => {
     }
 }
 
+
+
 const createLogout =  (req, res) => {
 
     try {
@@ -171,9 +175,14 @@ const createLogout =  (req, res) => {
     }
 
 }
-module.exports = {registerCtrl, loginCtrl, createLogout, verifyToken}
-    
-/* undefined a la propiedad password del objeto user: es útil para evitar 
+
+
+module.exports = { registerCtrl, loginCtrl, verifyToken, createLogout };
+
+
+
+
+/* undefined a la propiedad password es útil para evitar 
 que la contraseña sea incluida en las respuestas HTTP o se registre 
 en los logs.  { strict: false } permite esta modificación, incluso si el 
 esquema de Mongoose tiene restricciones estrictas. */

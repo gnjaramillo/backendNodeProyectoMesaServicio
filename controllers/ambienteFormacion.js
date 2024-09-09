@@ -17,7 +17,7 @@ const getAmbiente = async (req, res) => {
 const getAmbienteId = async (req, res) =>{
     try {
         const { id } = req.params;
-        const data = await ambienteModel.findOne({ _id: id, activo: true });
+        const data = await ambienteModel.findOne({ _id: id });
         if (!data) {
             handleHttpError(res, "Ambiente de formación no encontrado", 404);
             return;
@@ -66,7 +66,7 @@ const updateAmbiente = async(req, res) => {
 
 
 
-const deleteAmbiente = async(req, res) => {
+const inactivarAmbiente = async(req, res) => {
     const ambienteId = req.params.id;
 
     try {
@@ -91,9 +91,9 @@ const deleteAmbiente = async(req, res) => {
 
 
 
-module.exports = { getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, deleteAmbiente };
+module.exports = { getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, inactivarAmbiente };
 
 
 
-// permite saber quien hace la peticion
-// const usuario = req.usuario
+
+// const usuario = req.usuario permite saber quien hace la peticion

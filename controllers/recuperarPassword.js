@@ -1,3 +1,5 @@
+// recuperarPassword.js
+
 const crypto = require('crypto');
 const { usuarioModel } = require('../models'); 
 const { sendMail } = require('../utils/handleEmail');
@@ -11,6 +13,8 @@ const bcrypt = require('bcryptjs');
 function generateToken() {
     return crypto.randomBytes(32).toString('hex');
 }
+
+
 
 // Solicitar restablecimiento de contraseña
 const forgotPassword = async (req, res) => {
@@ -49,33 +53,7 @@ const forgotPassword = async (req, res) => {
     }
 };
 
-// Restablecer la contraseña
-const resetPassword = async (req, res) => {
-    const { token } = req.params;
-    const { password } = req.body;
-
-    try {
-        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
-        const user = await Usuario.findOne({
-            resetPasswordToken: hashedToken,
-            resetPasswordExpires: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            return res.status(400).json({ message: 'Token inválido o expirado.' });
-        }
-
-        user.password = await bcrypt.hash(password, 12);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        await user.save();
-
-        res.status(200).json({ message: 'Contraseña restablecida correctamente.' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor.' });
-    }
-}; 
 
 
-module.exports = { forgotPassword,  resetPassword};
+
+module.exports = { forgotPassword};

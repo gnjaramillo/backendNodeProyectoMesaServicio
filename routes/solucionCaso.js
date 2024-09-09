@@ -7,8 +7,8 @@ const uploadMiddleware = require("../utils/handleStorage");
 
 
 
-// http://localhost:3010/api/:idSolicitud/solucion
-router.post("/:id/solucion", authMiddleware,  uploadMiddleware.single('evidencia'), checkRol(['tecnico']), solucionCaso); 
+// http://localhost:3010/api/solucionCaso/:idSolicitud
+router.post("/:id", authMiddleware,  checkRol(['tecnico']), uploadMiddleware.single('evidencia'),  solucionCaso); 
 
 
 module.exports = router;

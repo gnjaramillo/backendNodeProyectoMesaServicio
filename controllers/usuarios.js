@@ -60,7 +60,7 @@ const getPerfilUsuario = async (req,res) =>{
 
 
 
-//actualizar datos de perfil
+//actualizar datos de perfil, excepto correo, rol y nombre
 const updateUsuarios = async (req, res) => {
     const userId = req.usuario._id; 
 
@@ -133,8 +133,8 @@ const updateUsuarios = async (req, res) => {
 
 
 
-
-const deleteUsuarios = async (req, res) => {
+//inactivar usuarios
+const inactivarUsuarios = async (req, res) => {
     const userId = req.params.id;
 
     try {
@@ -143,6 +143,9 @@ const deleteUsuarios = async (req, res) => {
         
         if (!user) {
             return res.status(404).send({ message: "Usuario no encontrado" });
+        }
+        if (!user.activo) {
+            return res.status(404).send({ message: "Usuario ya esta inactivo" });
         }
 
         // Eliminar la foto asociada si no es la predeterminada
@@ -161,20 +164,59 @@ const deleteUsuarios = async (req, res) => {
 
         }
 
-        await usuarioModel.findByIdAndDelete(userId)
-        res.send({ message: `Usuario ${userId} y su foto asociada han sido eliminados` });
+        user.activo = false;
+        user.foto = null;
+        await user.save();
+
+        res.send({ message: `Usuario ${userId} ha sido inactivado` });
     
     
     
     } catch (error) {
-        handleHttpError(res, "Error al eliminar el usuario", 500);
+        handleHttpError(res, "Error al inactivar el usuario", 500);
     }
 };
 
 
 
+//reactivar usuarios
+const reactivarUsuarios = async (req, res) => {
+    const userId = req.params.id;
 
-module.exports = { getUsuarios, getPerfilUsuario, updateUsuarios, deleteUsuarios, getUsuariosId };
+    try {
+        const user = await usuarioModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).send({ message: "Usuario no encontrado" });
+        }
+
+        // Si el usuario ya está activo
+        if (user.activo) {
+            return res.status(400).send({ message: "El usuario ya está activo" });
+        }
+
+        // Reactivar el usuario
+        user.activo = true;
+
+        // Asignar foto predeterminada si no tiene una
+        if (!user.foto) {
+            const defaultFoto = await storageModel.findOne({ filename: 'usuario-undefined.png' });
+            if (defaultFoto) {
+                user.foto = defaultFoto._id; 
+            }
+        }
+
+        await user.save();
+        res.send({ message: `Usuario ${userId} ha sido reactivado` });
+    
+    } catch (error) {
+        handleHttpError(res, "Error al reactivar el usuario", 500);
+    }
+};
+
+
+
+module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios,  reactivarUsuarios };
 
 
 

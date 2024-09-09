@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes por Mes</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        h1,
+        h3,
+        label,
+        p {
+            margin: 0;
+            padding: 10px 0;
+        }
+
+        .container {
+            width: 50vw;
+            height: 50vh;
+        }
+
+        #solicitudesChart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        #totalSolicitudes {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gráfica de Solicitudes por Mes</h1>
+    <h3>Mesa de Ayuda TICs</h3>
+    <div class="controls">
+        <label for="yearSelect">Seleccione el año:</label>
+        <select id="yearSelect"></select>
+        <p id="reportDate"></p>
+        <p id="totalSolicitudes"></p>
+    </div>
+    <div class="container">
+        <canvas id="solicitudesChart"></canvas>
+    </div>
+
+    <script>
+        const monthNames = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+
+        const colors = [
+            'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
+            'rgba(199, 199, 199, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 205, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(153, 102, 255, 0.2)'
+        ];
+
+        const borderColor = [
+            'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)',
+            'rgba(199, 199, 199, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 205, 86, 1)',
+            'rgba(75, 192, 192, 1)', 'rgba(54, 162, 235, 1)', 'rgba(153, 102, 255, 1)'
+        ];
+
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('yearSelect');
+        const reportDate = document.getElementById('reportDate');
+        const totalSolicitudesElement = document.getElementById('totalSolicitudes');
+
+        let chart;
+
+        // Generar opciones de años
+        for (let year = currentYear; year >= 2023; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        function loadReport(year) {
+            fetch(`/api/graficaSolicitudesPorMes?year=${year}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.data.map(item => monthNames[item._id - 1]);
+                    const values = data.data.map(item => item.cantidad);
+
+                    // Actualizar el subtítulo con el total de solicitudes
+                    totalSolicitudesElement.textContent = `Total Solicitudes: ${data.totalSolicitudes}`;
+
+                    // Destruir la gráfica anterior si existe
+                    if (chart) {
+                        chart.destroy();
+                    }
+
+                    const ctx = document.getElementById('solicitudesChart').getContext('2d');
+                    chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                // label: `Número de Solicitudes en ${year}`, // Elimina o comenta esta línea
+                                data: values,
+                                backgroundColor: colors,
+                                borderColor: borderColor,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: {
+                                    display: false // Esto desactiva la leyenda
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Cargar el reporte inicial para el año actual
+        loadReport(currentYear);
+
+        // Actualizar el reporte cuando se seleccione otro año
+        yearSelect.addEventListener('change', function () {
+            loadReport(this.value);
+        });
+    </script>
+</body>
+
+</html>

@@ -5,17 +5,15 @@ const uploadMiddleware = require("../utils/handleStorage");
 const checkRol = require('../middleware/rol');
 const authMiddleware = require('../middleware/session') 
 
-const { validatorUpdateUsuarios, validatorGetUsuariosId } = require("../validators/usuarios");
 
-// http://localhost:3010/api/usuarios/
+// http://localhost:3010/api/tecnicos/
 
-// Rutas específicas para técnicos
-router.put("/:id/aprobarTecnico", aprobarTecnico);
-router.put("/:id/denegarTecnico", denegarTecnico);
-router.get("/tecnicosPendientes", listaTecnicosPendientes);
-router.get("/tecnicosAprobados", listaTecnicosAprobados);
+router.get("/tecnicosPendientes",authMiddleware, checkRol(['lider']),  listaTecnicosPendientes);
+router.get("/tecnicosAprobados", authMiddleware, checkRol(['lider']), listaTecnicosAprobados);
+router.put("/:id/aprobarTecnico",authMiddleware, checkRol(['lider']), aprobarTecnico);
+router.put("/:id/denegarTecnico",authMiddleware, checkRol(['lider']), denegarTecnico);
+
+
+
 
 module.exports = router;
-
-
-
