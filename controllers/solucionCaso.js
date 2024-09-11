@@ -39,11 +39,11 @@ const solucionCaso = async (req, res) => {
         const { tipoSolucion } = body;
         
         // actualiza estado de la solicitud
-        if (tipoSolucion === 'pendiente') {
+        if (tipoSolucion == 'pendiente') {
             solicitud.estado = 'pendiente';
             await solicitud.save();
 
-        } else if (tipoSolucion === 'finalizado') {
+        } else if (tipoSolucion == 'finalizado') {
             solicitud.estado = 'finalizado';
             await solicitud.save();
 
