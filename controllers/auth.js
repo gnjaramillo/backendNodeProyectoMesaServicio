@@ -116,7 +116,7 @@ const loginCtrl = async (req, res) => {
     res.cookie("token", token, {
             secure: true,
             sameSite: "none",
-            httpOnly: false
+            httpOnly: true
         });
 
         res.json({  message: "Usuario ha ingresado exitosamente", dataUser});
