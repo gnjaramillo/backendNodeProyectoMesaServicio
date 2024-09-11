@@ -59,7 +59,7 @@ const morgan = require("morgan");
 
 // Configuración de Express en la app
 app.use(cors({
-  origin: [process.env.FRONTEND_URL],  // Asegúrate que FRONTEND_URL esté bien configurado
+  origin: [process.env.FRONTEND_URL],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -74,10 +74,7 @@ app.use('/media', express.static(path.join(__dirname, 'media')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static("storage"));
-const customHeader = require('./middleware/customHeader');
 
-// Middleware de CORS y cabeceras personalizadas
-app.use(customHeader);
 // Invoca las rutas de la API
 app.use("/api", require("./routes"));
 
