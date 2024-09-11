@@ -132,6 +132,26 @@ const listaTecnicosAprobados = async (req,res)=>{
 
 
 
+/* // tecnicos inactivados
+const listaTecnicosInactivos = async (req,res)=>{    
+    try {
+        const tecnicos = await usuarioModel.find({ rol: 'tecnico', activo: false })
+        .select('nombre correo telefono');
+                
+        if(!tecnicos) {
+            return res.status(500).send({message:" no hay tecnicos inactivados"})
+        }
+        res.status(200).json({message:"lista de tecnicos inactivados", tecnicos})
+        
+    } catch (error) {
+        handleHttpError(res, "Error al listar tecnicos inactivados", 500);
+        
+    }
+}  */
+
+
+
+
 module.exports = { listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados };
 
 

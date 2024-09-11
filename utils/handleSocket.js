@@ -31,4 +31,4 @@ io.on('connection', (socket) => {
 });
 
 // Exporta tanto el servidor como la app
-module.exports = { app, server };
+module.exports = { app, server, io };

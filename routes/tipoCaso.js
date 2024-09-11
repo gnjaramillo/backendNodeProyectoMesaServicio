@@ -5,6 +5,8 @@ const authMiddleware = require('../middleware/session')
 
 const { getTipoCaso, getTipoCasoId, postTipoCaso,updateTipoCaso, deleteTipoCaso} = require("../controllers/tipoCaso");
 
+// http://localhost:3010/api/tipoCaso/
+
 router.get("/", authMiddleware, checkRol(['lider', 'tecnico']), getTipoCaso);
 router.get("/:id", authMiddleware, checkRol(['lider', 'tecnico']), getTipoCasoId);
 router.post("/", authMiddleware, checkRol(['lider']), postTipoCaso);

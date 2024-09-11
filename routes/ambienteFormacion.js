@@ -7,12 +7,13 @@ const {getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, inactivarAmbien
 
 
 //http://localhost:3010/api/ambienteFormacion/
+//http://localhost:3010/api/ambienteFormacion/:id/inactivar
 
 router.get("/", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbiente);
 router.get("/:id", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbienteId);
 router.post("/", authMiddleware, checkRol(['lider']), postAmbiente);
 router.put("/:id", authMiddleware, checkRol(['lider']),  updateAmbiente);
-router.put("/:id", authMiddleware, checkRol(['lider']),  inactivarAmbiente);
+router.put("/:id/inactivar", authMiddleware, checkRol(['lider']),  inactivarAmbiente);
 
 module.exports = router;
 
