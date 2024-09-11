@@ -22,6 +22,8 @@ const solucionCaso = async (req, res) => {
 
         let fotoId;
 
+        // si sube archivo de evidencia 
+
         if (file) {
             const fileData = {
                 filename: file.filename,
@@ -36,6 +38,7 @@ const solucionCaso = async (req, res) => {
         
         const { tipoSolucion } = body;
         
+        // actualiza estado de la solicitud
         if (tipoSolucion === 'pendiente') {
             solicitud.estado = 'pendiente';
             await solicitud.save();

@@ -59,7 +59,8 @@ const morgan = require("morgan");
 
 // Configuración de Express en la app
 app.use(cors({
-  origin: [process.env.FRONTEND_URL],
+  // origin: [process.env.FRONTEND_URL],
+  origin: '*',
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
