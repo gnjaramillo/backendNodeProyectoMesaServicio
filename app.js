@@ -75,7 +75,10 @@ app.use('/media', express.static(path.join(__dirname, 'media')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static("storage"));
+const customHeader = require('./middlewares/customHeader');
 
+// Middleware de CORS y cabeceras personalizadas
+app.use(customHeader);
 // Invoca las rutas de la API
 app.use("/api", require("./routes"));
 
