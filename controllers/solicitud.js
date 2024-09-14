@@ -17,6 +17,12 @@ const getSolicitud = async (req, res) => {
             .populate('ambiente', 'nombre estado')
             .populate('tecnico', 'nombre')
             .populate('foto', 'url filename')
+            .populate({
+                path: 'solucion',
+                select: 'descripcionSolucion evidencia',
+                populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+            });
+        
 
             res.status(200).json({ message: "solicitudes consultadas exitosamente", data });
         } catch (error) {
@@ -33,8 +39,14 @@ const getSolicitudId = async (req, res) => {
         .populate('usuario', 'nombre')
         .populate('ambiente', 'nombre estado')
         .populate('tecnico', 'nombre')
-        .populate('foto', 'url'); 
-        
+        .populate('foto', 'url')
+        .populate({
+            path: 'solucion',
+            select: 'descripcionSolucion evidencia',
+            populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+        });
+
+
         if (!data) {
             handleHttpError(res, "solicitud no encontrado");
             return;
@@ -46,6 +58,7 @@ const getSolicitudId = async (req, res) => {
         handleHttpError(res, "Error al consultar el solicitud");
     }
 };
+
 
 
 const deleteSolicitud = async (req, res) => {
@@ -156,6 +169,37 @@ const crearSolicitud = async (req, res) => {
 };
 
 
+// crear solicitudes creadas por el funcionario
+const historialSolicitudesCreadas = async (req, res) =>{
+    const usuarioId = req.usuario._id; // middleware de sesión con JWT
+    const usuario = await usuarioModel.findById({_id:usuarioId})
+
+    try {
+        const solicitudesFinalizadas = await solicitudModel
+            .find({usuario: usuarioId, estado: 'finalizado' })
+            .select('descripcion fecha estado')
+            .populate('ambiente', 'nombre')
+            .populate('tecnico', 'nombre')
+            .populate('foto', 'url filename')
+            .populate({
+                path: 'solucion',
+                select: 'descripcionSolucion evidencia',
+                populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+            });
+        
+
+      // Respuesta con las solicitudes finalizadas
+      res.status(200).json({
+        message: `Historial Solicitudes finalizadas  ${usuario.nombre}`,
+        solicitudesFinalizadas,
+      });
+        } catch (error) {
+        handleHttpError(res, "error al obtener datos");
+    }
+
+}
+
+
 
 // asignar tecnico a solicitud
 const asignarTecnicoSolicitud = async (req, res) => {
@@ -212,11 +256,12 @@ const asignarTecnicoSolicitud = async (req, res) => {
 const getSolicitudesAsignadas = async (req,res) =>{
 
     try {
-        const tecnicoId = req.usuario._id 
+        const tecnicoId = req.usuario._id // middleware de sesión con JWT
         const tecnico = await usuarioModel.findById({_id:tecnicoId})
 
 
-        const solicitudesAsignadas = await solicitudModel.find({tecnico: tecnicoId})
+        const solicitudesAsignadas = await solicitudModel
+            .find({tecnico: tecnicoId, estado:{$ne: 'finalizado'}}) // Excluir finalizadas, solo mostrar pendientes o asignadas
             .select('descripcion telefono fecha estado')
             .populate('usuario', 'nombre')
             .populate('ambiente', 'nombre')
@@ -232,7 +277,45 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
 
 
+// solicitudes finalizadas con la solucion respectiva del técnico, vista del historial del tecnico
+const getSolicitudesFinalizadas = async (req, res) => {
+    try {
+      const tecnicoId = req.usuario._id; // middleware de sesión con JWT
+      const tecnico = await usuarioModel.findById({_id:tecnicoId})
+      
+      // Filtra las solicitudes asignadas al técnico que estén en estado "finalizado"
+      const solicitudesFinalizadas = await solicitudModel
+        .find({ tecnico: tecnicoId, estado: 'finalizado' })
+        .select('descripcion fecha codigoCaso') 
+        .populate('usuario', 'nombre')
+        .populate('ambiente', 'nombre')
+        .populate('foto', 'url')
+        .populate({
+            path: 'solucion',
+            select: 'descripcionSolucion evidencia',
+            populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+        });
+        
+  
+      // Respuesta con las solicitudes finalizadas
+      res.status(200).json({
+        message: `Solicitudes finalizadas del técnico ${tecnico.nombre}`,
+        solicitudesFinalizadas,
+      });
+    } catch (error) {
+      handleHttpError(res, 'Error al obtener solicitudes finalizadas');
+    }
+  };
+  
 
-module.exports = { getSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, asignarTecnicoSolicitud, getSolicitudesAsignadas, deleteSolicitud };
+module.exports = { getSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, historialSolicitudesCreadas, asignarTecnicoSolicitud, getSolicitudesAsignadas,  getSolicitudesFinalizadas, deleteSolicitud };
 
 
+
+
+
+
+  /*   Cambio clave: He modificado la consulta en la línea 
+  .find({ tecnico: tecnicoId, estado: { $ne: 'finalizado' } }). 
+  El operador $ne significa "no igual a", por lo que ahora solo 
+  se traerán solicitudes cuyo estado no sea "finalizado". */

@@ -42,6 +42,13 @@ const solicitudSchema = new mongoose.Schema({
         ref: 'Usuario',
         required: false
     },
+
+    // Nuevo campo para enlazar la solución
+    solucion: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SolucionCaso',
+        required: false
+    },
      
     foto: {
         type: mongoose.Schema.Types.ObjectId,  

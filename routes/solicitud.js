@@ -7,8 +7,10 @@ const {
     getSolicitud, 
     getSolicitudesPendientes, 
     crearSolicitud, 
+    historialSolicitudesCreadas,
     asignarTecnicoSolicitud, 
     getSolicitudesAsignadas, 
+    getSolicitudesFinalizadas,
     deleteSolicitud 
 } = require("../controllers/solicitud");
 const uploadMiddleware = require("../utils/handleStorage");
@@ -25,8 +27,14 @@ router.get("/pendientes", authMiddleware, checkRol(['lider']), getSolicitudesPen
 // http://localhost:3010/api/solicitud/asignadas (técnico)
 router.get("/asignadas", authMiddleware, checkRol(['tecnico']), getSolicitudesAsignadas);
 
+
+// http://localhost:3010/api/solicitud/finalizadas (técnico)
+router.get("/finalizadas", authMiddleware, checkRol(['tecnico']), getSolicitudesFinalizadas);
+
+
 // http://localhost:3010/api/solicitud/
 router.post("/", authMiddleware,  checkRol(['funcionario']), uploadMiddleware.single("foto"), validarSolicitud, crearSolicitud);
+router.get("/historial", authMiddleware,  checkRol(['funcionario']),  historialSolicitudesCreadas);
 router.get("/:id", getSolicitudId); 
 router.delete("/:id", deleteSolicitud); 
 

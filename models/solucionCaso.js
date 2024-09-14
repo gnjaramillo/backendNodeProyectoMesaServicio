@@ -5,7 +5,7 @@ const solucionCasoSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Solicitud',
         required: true
-    },
+    }, 
 
     descripcionSolucion: {
         type: String,
