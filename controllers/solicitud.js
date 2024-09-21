@@ -6,17 +6,16 @@ const transporter = require('../utils/handleEmail');
 // Importar socket.io
 const { io } = require('../utils/handleSocket'); 
 
-// Emitir evento al asignar técnico
 
 
-
+// historial de solicitudes para que las vea el lider
 const getSolicitud = async (req, res) => {
     try {
-        const data = await solicitudModel.find({}).select('descripcion fecha estado')
+        const data = await solicitudModel.find({}).select('descripcion fecha estado codigoCaso')
             .populate('usuario', 'nombre')
-            .populate('ambiente', 'nombre estado')
+            .populate('ambiente', 'nombre')
             .populate('tecnico', 'nombre')
-            .populate('foto', 'url filename')
+            .populate('foto', 'url')
             .populate({
                 path: 'solucion',
                 select: 'descripcionSolucion evidencia',
@@ -37,7 +36,7 @@ const getSolicitudId = async (req, res) => {
         const { id } = req.params;
         const data = await solicitudModel.findById(id).select('descripcion fecha estado')
         .populate('usuario', 'nombre')
-        .populate('ambiente', 'nombre estado')
+        .populate('ambiente', 'nombre activo')
         .populate('tecnico', 'nombre')
         .populate('foto', 'url')
         .populate({
@@ -223,10 +222,14 @@ const asignarTecnicoSolicitud = async (req, res) => {
         solicitud.estado = 'asignado';
         await solicitud.save();
 
-        // ---------Emitir evento para actualizar la vista del funcionario
+        //------- Emitir evento para actualizar la vista del funcionario
         io.emit('actualizarSolicitud', { solicitudId: solicitud._id, estado: solicitud.estado });
         
-        // const tecnicoAsignado = await usuarioModel.findById(solicitud.tecnico)
+       // Contar cuántas solicitudes tiene asignadas el técnico
+       const solicitudesAsignadas = await solicitudModel.countDocuments({ tecnico: tecnico, estado: 'asignado' });
+
+       //------- Emitir evento para actualizar el número de solicitudes asignadas al técnico en tiempo real
+       io.emit('actualizarTecnico', { tecnicoId: tecnico, numeroSolicitudesAsignadas: solicitudesAsignadas });
 
         transporter.sendMail({
             from: process.env.EMAIL,
@@ -277,7 +280,7 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
 
 
-// solicitudes finalizadas con la solucion respectiva del técnico, vista del historial del tecnico
+// solicitudes finalizadas con la solucion respectiva del técnico,  historial del tecnico
 const getSolicitudesFinalizadas = async (req, res) => {
     try {
       const tecnicoId = req.usuario._id; // middleware de sesión con JWT
