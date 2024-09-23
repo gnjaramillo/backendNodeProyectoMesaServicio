@@ -90,7 +90,7 @@ const loginCtrl = async (req, res) => {
         // ------------ Verificar si el usuario se encuentra activo
         if (user.activo === false) {
             return res.status(403).send({ message: `En el momento su ingreso se encuentra inactivado
-                por parte del Líder TIC. Una vez sea aprobado, podrá ingresar al sistema. ¡Gracias!` });
+                por parte del Líder TIC. Una vez sea reactivado, podrá ingresar al sistema. ¡Gracias!` });
         }
 
 

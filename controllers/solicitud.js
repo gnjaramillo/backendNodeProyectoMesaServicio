@@ -8,7 +8,7 @@ const { io } = require('../utils/handleSocket');
 
 
 
-// historial de solicitudes para que las vea el lider
+// ver solicitudes
 const getSolicitud = async (req, res) => {
     try {
         const data = await solicitudModel.find({}).select('descripcion fecha estado codigoCaso')
@@ -28,6 +28,31 @@ const getSolicitud = async (req, res) => {
         handleHttpError(res, "error al obtener datos");
     }
 };
+
+
+
+// Historial de solicitudes vista líder
+const getHistorialSolicitud = async (req, res) => {
+    try {
+        // Filtrar solicitudes cuyo estado no sea 'solicitado'
+        const data = await solicitudModel.find({ estado: { $ne: 'solicitado' } })
+            .select('descripcion fecha estado codigoCaso')
+            .populate('usuario', 'nombre')
+            .populate('ambiente', 'nombre')
+            .populate('tecnico', 'nombre')
+            .populate('foto', 'url')
+            .populate({
+                path: 'solucion',
+                select: 'descripcionSolucion evidencia',
+                populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+            });
+
+        res.status(200).json({ message: "Solicitudes consultadas exitosamente", data });
+    } catch (error) {
+        handleHttpError(res, "Error al obtener datos");
+    }
+};
+
 
 
 
@@ -80,7 +105,7 @@ const deleteSolicitud = async (req, res) => {
 
 
 
-// solicitudes realizadas por funcionarios, pendientes de ser asignadas 
+// solicitudes realizadas por funcionarios, pendientes de ser asignadas (vista inicial lider)
 const getSolicitudesPendientes = async (req, res) => {
 
     try {
@@ -311,7 +336,7 @@ const getSolicitudesFinalizadas = async (req, res) => {
   };
   
 
-module.exports = { getSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, historialSolicitudesCreadas, asignarTecnicoSolicitud, getSolicitudesAsignadas,  getSolicitudesFinalizadas, deleteSolicitud };
+module.exports = { getSolicitud, getHistorialSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, historialSolicitudesCreadas, asignarTecnicoSolicitud, getSolicitudesAsignadas,  getSolicitudesFinalizadas, deleteSolicitud };
 
 
 
