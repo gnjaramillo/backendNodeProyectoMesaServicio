@@ -179,6 +179,20 @@ const inactivarUsuarios = async (req, res) => {
 
 
 
+// lista de tecnicos o usuarios inactivados
+const usuariosInactivos = async (req, res) =>{
+    try {
+        
+        const data = await usuarioModel.find({activo: false})
+        .select('nombre correo telefono');
+ 
+        res.send({ data });
+    } catch (error) {
+        handleHttpError(res, "error al obtener datos", 500);
+}
+}
+
+
 //reactivar usuarios
 const reactivarUsuarios = async (req, res) => {
     const userId = req.params.id;
@@ -215,8 +229,11 @@ const reactivarUsuarios = async (req, res) => {
 };
 
 
+// lista usuarios inactivos (vista lider)
 
-module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios,  reactivarUsuarios };
+
+
+module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, reactivarUsuarios };
 
 
 

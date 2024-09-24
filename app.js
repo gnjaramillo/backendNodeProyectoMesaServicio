@@ -58,6 +58,7 @@ const dbConnect = require('./config/mongo')
 const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
 
+
 // Configuración de Express en la app
 app.use(cors({
   origin: [process.env.FRONTEND_URL],

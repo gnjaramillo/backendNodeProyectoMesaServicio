@@ -7,6 +7,7 @@ const {getAmbiente, getAmbienteId, postAmbiente, updateAmbiente, inactivarAmbien
 
 
 //http://localhost:3010/api/ambienteFormacion/
+//http://localhost:3010/api/ambienteFormacion/:id/inactivar
 
 router.get("/", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbiente);
 router.get("/:id", authMiddleware, checkRol(['lider', 'funcionario']),  getAmbienteId);
