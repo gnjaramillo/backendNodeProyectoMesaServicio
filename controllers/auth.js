@@ -6,7 +6,7 @@ const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const jwt = require("jsonwebtoken");
-
+const isProduction = process.env.NODE_ENV === 'production';
 
 
 
@@ -112,12 +112,18 @@ const loginCtrl = async (req, res) => {
             token: await tokenSign(user),
             user
         };
-
+/* 
     res.cookie("token", token, {
             secure: true,
             sameSite: "none",
             httpOnly: true
-        });
+        }); */
+
+        res.cookie('token', token, {
+            httpOnly: true, // Hace que la cookie no sea accesible mediante JavaScript en el cliente
+            secure: isProduction, // Usa 'Secure' solo si está en producción (es decir, en HTTPS) contexto donde el frontend está ejecutando la solicitud.
+            sameSite: isProduction ? 'None' : 'Lax', // En producción usa 'None', en desarrollo puedes usar 'Lax'
+          });
 
         res.json({  message: "Usuario ha ingresado exitosamente", dataUser});
     } catch (error) {

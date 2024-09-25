@@ -58,16 +58,16 @@ const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
 
 
-/* // Configuración de Express en la app
+// Configuración de Express en la app
 app.use(cors({
   origin: [process.env.FRONTEND_URL],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 200
-})); */
+}));
 
-app.use(cors({
+/* app.use(cors({
   origin: (origin, callback) => {
     callback(null, true); // Permite cualquier dominio
   },
@@ -75,7 +75,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 200
-}));
+})); */
 
 app.use(morgan("dev"));
 app.use(express.json());
