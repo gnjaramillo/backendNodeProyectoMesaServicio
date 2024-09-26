@@ -136,7 +136,7 @@ const loginCtrl = async (req, res) => {
 };
 
 
-const verifyToken = async (req, res) => {
+/* const verifyToken = async (req, res) => {
 
     const { token } = req.cookies;
 
@@ -160,11 +160,38 @@ const verifyToken = async (req, res) => {
             error: error.message
         });
     }
-}
+} */
+
+    const verifyToken = async (req, res) => {
+        const authHeader = req.headers.authorization;
+    
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(400).json({ message: 'Sin autorizacion' });
+        }
+    
+        const token = authHeader.split(' ')[1]; // Extraer el token
+    
+        try {
+            jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+                if (err) return res.status(400).json({ message: err });
+    
+                const foundUser = await usuarioModel.findOne({ _id: user._id });
+                if (!foundUser) return res.status(400).json({ message: 'Usuario no encontrado.' });
+                
+                return res.status(200).json(foundUser); // Devuelve el usuario si el token es válido
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Error al verificar el token',
+                error: error.message,
+            });
+        }
+    };
+    
 
 
 
-const createLogout =  (req, res) => {
+/* const createLogout =  (req, res) => {
 
     try {
         
@@ -180,7 +207,20 @@ const createLogout =  (req, res) => {
         });
     }
 
-}
+} */
+
+    const createLogout = (req, res) => {
+        try {
+            // No es necesario modificar ninguna cookie ya que estás usando localStorage para el token
+            res.status(200).json({message: "Sesión cerrada exitosamente!"});
+        } catch (error) {
+            res.status(500).json({
+                message: 'Error al cerrar la sesión',
+                error: error.message
+            });
+        }
+    }
+    
 
 
 module.exports = { registerCtrl, loginCtrl, verifyToken, createLogout };
