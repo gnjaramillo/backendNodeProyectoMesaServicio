@@ -166,29 +166,35 @@ const loginCtrl = async (req, res) => {
         const authHeader = req.headers.authorization;
     
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(400).json({ message: 'Sin autorizacion' });
+            return res.status(400).json({ message: 'Sin autorización o formato de token incorrecto' });
         }
     
         const token = authHeader.split(' ')[1]; // Extraer el token
     
         try {
-            jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
-                if (err) return res.status(400).json({ message: err });
-    
-                const foundUser = await usuarioModel.findOne({ _id: user._id });
-                if (!foundUser) return res.status(400).json({ message: 'Usuario no encontrado.' });
-                
-                return res.status(200).json(foundUser); // Devuelve el usuario si el token es válido
+            const user = await new Promise((resolve, reject) => {
+                jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                    if (err) {
+                        return reject('Token inválido o expirado');
+                    }
+                    resolve(decoded);
+                });
             });
+    
+            const foundUser = await usuarioModel.findOne({ _id: user._id });
+            if (!foundUser) {
+                return res.status(400).json({ message: 'Usuario no encontrado' });
+            }
+    
+            return res.status(200).json(foundUser);
         } catch (error) {
             res.status(500).json({
                 message: 'Error al verificar el token',
-                error: error.message,
+                error: error,
             });
         }
     };
     
-
 
 
 /* const createLogout =  (req, res) => {
