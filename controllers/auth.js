@@ -109,7 +109,7 @@ const loginCtrl = async (req, res) => {
         user.set('password', undefined, {strict:false}) // oculta contraseña
         const token = await tokenSign(user);
         const dataUser = {
-            token: await tokenSign(user),
+            token,
             user
         };
 /* 
@@ -119,11 +119,11 @@ const loginCtrl = async (req, res) => {
             httpOnly: true
         }); */
 
-        res.cookie('token', token, {
+      /*   res.cookie('token', token, {
             httpOnly: true, // Hace que la cookie no sea accesible mediante JavaScript en el cliente
             secure: isProduction, // Usa 'Secure' solo si está en producción (es decir, en HTTPS) contexto donde el frontend está ejecutando la solicitud.
             sameSite: isProduction ? 'None' : 'Lax', // En producción usa 'None', en desarrollo puedes usar 'Lax'
-          });
+          }); */
 
         res.json({  message: "Usuario ha ingresado exitosamente", dataUser});
     } catch (error) {
