@@ -43,7 +43,6 @@ const getPerfilUsuario = async (req,res) =>{
     try {
         const userId = req.usuario._id; 
         const data = await usuarioModel.findById(userId)
-            .select('nombre rol foto correo telefono')
             .populate('foto')
 
         if (!data) {
