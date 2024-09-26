@@ -44,7 +44,7 @@ const getPerfilUsuario = async (req,res) =>{
         const userId = req.usuario._id; 
         const data = await usuarioModel.findById(userId)
             .select('nombre rol foto correo telefono')
-            .populate('foto', 'url')
+            .populate('foto')
 
         if (!data) {
             return res.status(404).send({message: 'usuario no encontrado'})
