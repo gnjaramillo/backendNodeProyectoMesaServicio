@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, reactivarUsuarios } = require("../controllers/usuarios");
+const { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, usuariosActivos, reactivarUsuarios } = require("../controllers/usuarios");
 const uploadMiddleware = require("../utils/handleStorage");
 const checkRol = require('../middleware/rol');
 const authMiddleware = require('../middleware/session') 
@@ -18,6 +18,7 @@ router.get("/", getUsuarios);
 router.get("/perfil", authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), getPerfilUsuario);
 router.put("/perfil", authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), uploadMiddleware.single('foto'),  validatorUpdateUsuarios,  updateUsuarios);
 router.get("/inactivos", authMiddleware, checkRol(['lider']),  usuariosInactivos);
+router.get("/activos", authMiddleware, checkRol(['lider']),  usuariosActivos);
 router.get("/:id", validatorUsuariosId, getUsuariosId);
 router.put("/:id/inactivar", authMiddleware, checkRol(['lider']), validatorUsuariosId, inactivarUsuarios);
 router.put("/:id/reactivar", authMiddleware, checkRol(['lider']), validatorUsuariosId, reactivarUsuarios);

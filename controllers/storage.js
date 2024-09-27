@@ -2,6 +2,8 @@
 
 const { storageModel } = require("../models");
 const PUBLIC_URL = process.env.PUBLIC_URL;
+const RENDER_URL = process.env.RENDER_URL 
+
 const {handleHttpError} = require("../utils/handleError")
 const fs = require('fs');
 const path = require('path');
@@ -13,10 +15,19 @@ const createStorage = async (req, res) => {
         return res.status(400).send({ message: "archivo no cargado" });
     }
 
+    /* const fileData = {
+        filename: file.filename,
+        url: `${RENDER_URL}/${file.filename}`
+    }; */
+
     const fileData = {
         filename: file.filename,
-        url: `${PUBLIC_URL}/${file.filename}`
+        url: `${RENDER_URL}/storage/${file.filename}`  // Asegúrate de incluir '/storage'
     };
+    
+
+    console.log(`Archivo guardado en: ${path.join(__dirname, '../storage', file.filename)}`);
+    console.log(`URL pública: ${fileData.url}`);
 
     try {
         const data = await storageModel.create(fileData);

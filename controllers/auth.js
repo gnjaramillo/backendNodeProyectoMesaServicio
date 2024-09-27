@@ -5,6 +5,11 @@ const { usuarioModel, storageModel } = require("../models"); // Asegúrate de im
 const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
+
+const RENDER_URL = process.env.RENDER_URL 
+
+
+
 const jwt = require("jsonwebtoken");
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -42,8 +47,10 @@ const registerCtrl = async (req, res) => {
         if (!fileSaved) {
                 return res.status(500).send({message: "foto predeterminada no encontrada"})
         }
+
                             
         // Crear usuario incluyendo foto
+       
         const userData = {
             ...body,
             foto: fileSaved._id

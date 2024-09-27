@@ -70,29 +70,39 @@ app.use(cors({
 
 
 
-/* 
-app.use(cors({
-  origin: (origin, callback) => {
-    callback(null, true); // Permite cualquier dominio
-  },
-  credentials: true, // Habilita el envío de cookies
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200
-}));  */
-
 app.use(morgan("dev"));
 app.use(express.json());
+
+// Middleware para analizar cuerpos de formularios URL-encoded
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+//Esto es para el html
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/media', express.static(path.join(__dirname, 'media')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static("storage"));
+
+// los recursos publicos salen de la carpeta storage
+
+//app.use(express.static(path.join(__dirname, 'storage')));
+
+app.use('/storage', express.static(path.join(__dirname, 'storage')));
+
 
 // Invoca las rutas de la API
 app.use("/api", require("./routes"));
+
+
+// Ruta para listar archivos en la carpeta storage
+app.get('/list-storage', (req, res) => {
+  fs.readdir(path.join(__dirname, 'storage'), (err, files) => {
+      if (err) {
+          return res.status(500).send("Error reading directory");
+      }
+      res.send(files);  // Devuelve la lista de archivos
+  });
+});
 
 const port = process.env.PORT || 8000;
 

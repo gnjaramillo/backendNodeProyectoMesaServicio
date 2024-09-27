@@ -135,7 +135,7 @@ const denegarTecnico = async (req, res) => {
 const listaTecnicosAprobados = async (req, res) => {    
     try {
         // Primero buscamos los técnicos aprobados
-        const tecnicos = await usuarioModel.find({ rol: 'tecnico', estado: true }, 'nombre correo telefono').lean();
+        const tecnicos = await usuarioModel.find({ rol: 'tecnico', estado: true, activo:true }, 'nombre correo telefono').lean();
     
         // Iteramos sobre los técnicos para contar sus solicitudes asignadas
            for (const tecnico of tecnicos) {
