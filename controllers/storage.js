@@ -22,7 +22,7 @@ const createStorage = async (req, res) => {
 
     const fileData = {
         filename: file.filename,
-        url: `${RENDER_URL}/storage/${file.filename}`  // Asegúrate de incluir '/storage'
+        url: `${PUBLIC_URL}/${file.filename}`  // Asegúrate de incluir '/storage'
     };
     
 

@@ -85,9 +85,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // los recursos publicos salen de la carpeta storage
 
-//app.use(express.static(path.join(__dirname, 'storage')));
-
-app.use('/storage', express.static(path.join(__dirname, 'storage')));
+app.use(express.static(path.join(__dirname, 'storage')));
 
 
 // Invoca las rutas de la API
