@@ -177,6 +177,20 @@ const inactivarUsuarios = async (req, res) => {
     }
 };
 
+// lista de tecnicos o usuarios activados
+const usuariosActivos = async (req, res) =>{
+    try {
+        
+        const data = await usuarioModel.find({activo: true, rol:"tecnico"})
+        .select('nombre correo telefono');
+ 
+        res.send({ data });
+    } catch (error) {
+        handleHttpError(res, "error al obtener datos", 500);
+}
+}
+
+
 
 
 // lista de tecnicos o usuarios inactivados
@@ -233,7 +247,7 @@ const reactivarUsuarios = async (req, res) => {
 
 
 
-module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, reactivarUsuarios };
+module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, usuariosActivos, reactivarUsuarios };
 
 
 
