@@ -63,6 +63,7 @@ const morgan = require("morgan");
 
 app.use(cors({
   origin: [process.env.FRONTEND_URL, process.env.MOVIL_URL],
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 200
@@ -84,8 +85,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // los recursos publicos salen de la carpeta storage
-
-app.use(express.static(path.join(__dirname, 'storage')));
+app.use(express.static("storage"))
 
 
 // Invoca las rutas de la API
@@ -93,14 +93,14 @@ app.use("/api", require("./routes"));
 
 
 // Ruta para listar archivos en la carpeta storage
-app.get('/list-storage', (req, res) => {
+/* app.get('/list-storage', (req, res) => {
   fs.readdir(path.join(__dirname, 'storage'), (err, files) => {
       if (err) {
           return res.status(500).send("Error reading directory");
       }
       res.send(files);  // Devuelve la lista de archivos
   });
-});
+}); */
 
 const port = process.env.PORT || 8000;
 
