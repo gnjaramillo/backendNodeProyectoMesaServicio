@@ -36,7 +36,7 @@ const aprobarTecnico = async (req,res) =>{
     const id = req.params.id
     
     try {        
-        const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {new: true})
+        const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {activo: true}, {new: true})
         if (!tecnico) {
             return res.status(404).send({ message: "Técnico no encontrado" });
         }        

@@ -5,7 +5,6 @@ const { usuarioModel, storageModel } = require("../models"); // Asegúrate de im
 const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
-
 const RENDER_URL = process.env.RENDER_URL 
 
 
@@ -119,12 +118,12 @@ const loginCtrl = async (req, res) => {
             token,
             user
         };
-/* 
+
     res.cookie("token", token, {
             secure: true,
             sameSite: "none",
             httpOnly: true
-        }); */
+        }); 
 
       /*   res.cookie('token', token, {
             httpOnly: true, // Hace que la cookie no sea accesible mediante JavaScript en el cliente
@@ -143,7 +142,7 @@ const loginCtrl = async (req, res) => {
 };
 
 
-/* const verifyToken = async (req, res) => {
+const verifyToken = async (req, res) => {
 
     const { token } = req.cookies;
 
@@ -167,9 +166,9 @@ const loginCtrl = async (req, res) => {
             error: error.message
         });
     }
-} */
+} 
 
-    const verifyToken = async (req, res) => {
+/*     const verifyToken = async (req, res) => {
         const authHeader = req.headers.authorization;
     
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -202,9 +201,9 @@ const loginCtrl = async (req, res) => {
         }
     };
     
+ */
 
-
-/* const createLogout =  (req, res) => {
+const createLogout =  (req, res) => {
 
     try {
         
@@ -220,9 +219,9 @@ const loginCtrl = async (req, res) => {
         });
     }
 
-} */
+} 
 
-    const createLogout = (req, res) => {
+/*     const createLogout = (req, res) => {
         try {
             // No es necesario modificar ninguna cookie ya que estás usando localStorage para el token
             res.status(200).json({message: "Sesión cerrada exitosamente!"});
@@ -234,7 +233,7 @@ const loginCtrl = async (req, res) => {
         }
     }
     
-
+ */
 
 module.exports = { registerCtrl, loginCtrl, verifyToken, createLogout };
 
