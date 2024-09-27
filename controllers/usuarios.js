@@ -180,18 +180,6 @@ const inactivarUsuarios = async (req, res) => {
 
 
 
-// lista de tecnicos o usuarios inactivados
-const usuariosInactivos = async (req, res) =>{
-    try {
-        
-        const data = await usuarioModel.find({activo: false})
-        .select('nombre correo telefono');
- 
-        res.send({ data });
-    } catch (error) {
-        handleHttpError(res, "error al obtener datos", 500);
-}
-}
 
 
 //reactivar usuarios
@@ -234,7 +222,23 @@ const reactivarUsuarios = async (req, res) => {
 const usuariosActivos = async (req, res) =>{
     try {
         
-        const data = await usuarioModel.find({activo: true, rol:"tecnico"})
+        const data = await usuarioModel.find({activo: true, estado:true, rol:"tecnico"})
+        .select('nombre correo telefono');
+ 
+        res.send({ data });
+    } catch (error) {
+        handleHttpError(res, "error al obtene datos", 500);
+}
+}
+
+
+
+
+// lista de tecnicos o usuarios inactivados
+const usuariosInactivos = async (req, res) =>{
+    try {
+        
+        const data = await usuarioModel.find({activo: false})
         .select('nombre correo telefono');
  
         res.send({ data });
