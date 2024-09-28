@@ -37,7 +37,7 @@ const forgotPassword = async (req, res) => {
         await user.save();
 
         // const resetUrl = `http://localhost:3010/api/restablecerPassword/${token}`;
-        const resetUrl = `${RENDER_URL}/restablecerPassword/${token}`;
+        const resetUrl = `${RENDER_URL}/api/restablecerPassword/${token}`;
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
