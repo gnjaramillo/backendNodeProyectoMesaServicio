@@ -2,6 +2,8 @@ const { usuarioModel, storageModel } = require("../models/index.js");
 const { encrypt, compare } = require("../utils/handlePassword");
 const { handleHttpError } = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL;
+const RENDER_URL = process.env.RENDER_URL;
+
 const fs = require('fs');
 const path = require('path');
 const transporter = require('../utils/handleEmail')
@@ -27,9 +29,9 @@ const getUsuariosId = async (req, res) => {
         const { id } = req.params;  
         const data = await usuarioModel.findById(id).populate('foto'); 
         if (!data) {
-            res.send({ message: "Usuario no existe", data });
+            return res.send({ message: "Usuario no existe", data });
         }
-        res.send({ message: "Usuario consultado exitosamente", data });
+        return res.send({ message: "Usuario consultado exitosamente", data });
     } catch (error) {
         handleHttpError(res, "Error al consultar el usuario");
     }
@@ -43,14 +45,13 @@ const getPerfilUsuario = async (req,res) =>{
     try {
         const userId = req.usuario._id; 
         const data = await usuarioModel.findById(userId)
-            .select('nombre rol foto')
-            .populate('foto', 'url')
+            .populate('foto')
 
         if (!data) {
             return res.status(404).send({message: 'usuario no encontrado'})
             
         }
-        res.send({message: 'perfil consultado', data})
+        return res.send({message: 'perfil consultado', data})
 
         
     } catch (error) {
@@ -113,7 +114,7 @@ const updateUsuarios = async (req, res) => {
 
             // Guardar el nuevo archivo en la colección storage
             const fileData = {
-                url: `${PUBLIC_URL}/${file.filename}`,
+                url: `${RENDER_URL}/${file.filename}`,
                 filename: file.filename
             };
 
@@ -177,34 +178,8 @@ const inactivarUsuarios = async (req, res) => {
     }
 };
 
-// lista de tecnicos o usuarios activados
-const usuariosActivos = async (req, res) =>{
-    try {
-        
-        const data = await usuarioModel.find({activo: true, rol:"tecnico"})
-        .select('nombre correo telefono');
- 
-        res.send({ data });
-    } catch (error) {
-        handleHttpError(res, "error al obtener datos", 500);
-}
-}
 
 
-
-
-// lista de tecnicos o usuarios inactivados
-const usuariosInactivos = async (req, res) =>{
-    try {
-        
-        const data = await usuarioModel.find({activo: false})
-        .select('nombre correo telefono');
- 
-        res.send({ data });
-    } catch (error) {
-        handleHttpError(res, "error al obtener datos", 500);
-}
-}
 
 
 //reactivar usuarios
@@ -243,11 +218,37 @@ const reactivarUsuarios = async (req, res) => {
 };
 
 
-// lista usuarios inactivos (vista lider)
+// lista usuarios o tecnicos activos (vista lider)
+const usuariosActivos = async (req, res) =>{
+    try {
+        
+        const data = await usuarioModel.find({activo: true, estado:true, rol:"tecnico"})
+        .select('nombre correo telefono');
+ 
+        res.send({ data });
+    } catch (error) {
+        handleHttpError(res, "error al obtene datos", 500);
+}
+}
 
 
 
-module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, usuariosActivos, reactivarUsuarios };
+
+// lista de tecnicos o usuarios inactivados
+const usuariosInactivos = async (req, res) =>{
+    try {
+        
+        const data = await usuarioModel.find({activo: false, estado: true})
+        .select('nombre correo telefono');
+ 
+        res.send({ data });
+    } catch (error) {
+        handleHttpError(res, "error al obtener datos", 500);
+}
+}
+
+
+module.exports = { getUsuarios, getUsuariosId, getPerfilUsuario, updateUsuarios, inactivarUsuarios, usuariosInactivos, reactivarUsuarios, usuariosActivos };
 
 
 

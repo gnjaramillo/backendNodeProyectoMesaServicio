@@ -5,8 +5,12 @@ const { usuarioModel, storageModel } = require("../models"); // Asegúrate de im
 const { tokenSign } = require("../utils/handleJwt");
 const {handleHttpError} = require ("../utils/handleError.js");
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
-const jwt = require("jsonwebtoken");
+const RENDER_URL = process.env.RENDER_URL 
 
+
+
+const jwt = require("jsonwebtoken");
+const isProduction = process.env.NODE_ENV === 'production';
 
 
 
@@ -42,8 +46,10 @@ const registerCtrl = async (req, res) => {
         if (!fileSaved) {
                 return res.status(500).send({message: "foto predeterminada no encontrada"})
         }
+
                             
         // Crear usuario incluyendo foto
+       
         const userData = {
             ...body,
             foto: fileSaved._id
@@ -109,7 +115,7 @@ const loginCtrl = async (req, res) => {
         user.set('password', undefined, {strict:false}) // oculta contraseña
         const token = await tokenSign(user);
         const dataUser = {
-            token: await tokenSign(user),
+            token,
             user
         };
 
@@ -118,6 +124,12 @@ const loginCtrl = async (req, res) => {
             sameSite: "none",
             httpOnly: false
         });
+
+      /*   res.cookie('token', token, {
+            httpOnly: true, // Hace que la cookie no sea accesible mediante JavaScript en el cliente
+            secure: isProduction, // Usa 'Secure' solo si está en producción (es decir, en HTTPS) contexto donde el frontend está ejecutando la solicitud.
+            sameSite: isProduction ? 'None' : 'Lax', // En producción usa 'None', en desarrollo puedes usar 'Lax'
+          }); */
 
         res.json({  message: "Usuario ha ingresado exitosamente", dataUser});
     } catch (error) {
@@ -154,9 +166,42 @@ const verifyToken = async (req, res) => {
             error: error.message
         });
     }
-}
+} 
 
-
+/*     const verifyToken = async (req, res) => {
+        const authHeader = req.headers.authorization;
+    
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(400).json({ message: 'Sin autorización o formato de token incorrecto' });
+        }
+    
+        const token = authHeader.split(' ')[1]; // Extraer el token
+    
+        try {
+            const user = await new Promise((resolve, reject) => {
+                jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                    if (err) {
+                        return reject('Token inválido o expirado');
+                    }
+                    resolve(decoded);
+                });
+            });
+    
+            const foundUser = await usuarioModel.findOne({ _id: user._id });
+            if (!foundUser) {
+                return res.status(400).json({ message: 'Usuario no encontrado' });
+            }
+    
+            return res.status(200).json(foundUser);
+        } catch (error) {
+            res.status(500).json({
+                message: 'Error al verificar el token',
+                error: error,
+            });
+        }
+    };
+    
+ */
 
 const createLogout =  (req, res) => {
 
@@ -174,8 +219,21 @@ const createLogout =  (req, res) => {
         });
     }
 
-}
+} 
 
+/*     const createLogout = (req, res) => {
+        try {
+            // No es necesario modificar ninguna cookie ya que estás usando localStorage para el token
+            res.status(200).json({message: "Sesión cerrada exitosamente!"});
+        } catch (error) {
+            res.status(500).json({
+                message: 'Error al cerrar la sesión',
+                error: error.message
+            });
+        }
+    }
+    
+ */
 
 module.exports = { registerCtrl, loginCtrl, verifyToken, createLogout };
 

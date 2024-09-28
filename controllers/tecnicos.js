@@ -36,7 +36,12 @@ const aprobarTecnico = async (req,res) =>{
     const id = req.params.id
     
     try {        
-        const tecnico = await usuarioModel.findByIdAndUpdate(id, {estado: true}, {activo: true}, {new: true})
+        const tecnico = await usuarioModel.findByIdAndUpdate(
+            id, 
+            { estado: true, activo: true }, 
+            { new: true }
+        );
+        
         if (!tecnico) {
             return res.status(404).send({ message: "Técnico no encontrado" });
         }        
@@ -114,45 +119,27 @@ const denegarTecnico = async (req, res) => {
 
 
 // tecnicos aprobados
-/* const listaTecnicosAprobados = async (req,res)=>{    
+const listaTecnicosAprobados = async (req, res) => {    
     try {
-        const tecnicos = await usuarioModel.find({ rol: 'tecnico', estado: true })
-        .select('nombre correo telefono');
-                
-        if(!tecnicos) {
-            return res.status(500).send({message:" no hay tecnicos aprobados"})
+        // Primero buscamos los técnicos aprobados
+        const tecnicos = await usuarioModel.find({ rol: 'tecnico', estado: true, activo:true }, 'nombre correo telefono').lean();
+    
+        // Iteramos sobre los técnicos para contar sus solicitudes asignadas
+           for (const tecnico of tecnicos) {
+            const solicitudesAsignadas = await solicitudModel.countDocuments({ tecnico: tecnico._id, estado: 'asignado' });
+            tecnico.numeroSolicitudesAsignadas = solicitudesAsignadas; // Agregamos el conteo de solicitudes
         }
-        res.status(200).json({message:"lista de tecnicos con registro aprobado", tecnicos})
-        
+    
+        if (!tecnicos || tecnicos.length === 0) {
+            return res.status(500).send({ message: "No hay técnicos aprobados" });
+        }
+    
+        res.status(200).json({ message: "Lista de técnicos con registro aprobado", tecnicos });
+    
     } catch (error) {
-        handleHttpError(res, "Error al listar tecnicos con registro aprobado", 500);
-        
+        handleHttpError(res, "Error al listar técnicos con registro aprobado", 500);
     }
-} */ 
-
-
-
-    const listaTecnicosAprobados = async (req, res) => {    
-        try {
-            // Primero buscamos los técnicos aprobados
-            const tecnicos = await usuarioModel.find({ rol: 'tecnico', estado: true, activo:true }, 'nombre correo telefono').lean();
-        
-            // Iteramos sobre los técnicos para contar sus solicitudes asignadas
-               for (const tecnico of tecnicos) {
-                const solicitudesAsignadas = await solicitudModel.countDocuments({ tecnico: tecnico._id, estado: 'asignado' });
-                tecnico.numeroSolicitudesAsignadas = solicitudesAsignadas; // Agregamos el conteo de solicitudes
-            }
-        
-            if (!tecnicos || tecnicos.length === 0) {
-                return res.status(500).send({ message: "No hay técnicos aprobados" });
-            }
-        
-            res.status(200).json({ message: "Lista de técnicos con registro aprobado", tecnicos });
-        
-        } catch (error) {
-            handleHttpError(res, "Error al listar técnicos con registro aprobado", 500);
-        }
-    };
+};
     
 module.exports = { listaTecnicosPendientes, aprobarTecnico, denegarTecnico, listaTecnicosAprobados };
 
