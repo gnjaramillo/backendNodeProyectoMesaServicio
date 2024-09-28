@@ -63,7 +63,7 @@ const morgan = require("morgan");
 
 
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, process.env.MOVIL_URL],
+  origin: [process.env.FRONTEND_URL, process.env.MOVIL_URL, process.env.FRONTEND_URL_DEV],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
