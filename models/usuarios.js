@@ -29,7 +29,7 @@ const usuarioSchema = new mongoose.Schema({
     },
     activo: {
         type: Boolean,
-        default: true //  indica si el usuario está activo o inactivo
+        default: false //  indica si el usuario está activo o inactivo
     },
     estado: {
         type: Boolean,
