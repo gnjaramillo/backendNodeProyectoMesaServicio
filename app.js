@@ -62,12 +62,17 @@ const morgan = require("morgan");
 
 
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, process.env.MOVIL_URL],
-  credentials: true,
+  origin: [
+    process.env.FRONTEND_URL, 
+    process.env.MOVIL_URL, 
+    process.env.FRONTEND_URL_dev
+  ],
+  credentials: true, // Permitir el envío de cookies/credenciales
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200
+  allowedHeaders: ["Content-Type", "Authorization"], // Encabezados permitidos
+  optionsSuccessStatus: 200 // Para resolver problemas con navegadores antiguos
 }));
+
 
 
 
