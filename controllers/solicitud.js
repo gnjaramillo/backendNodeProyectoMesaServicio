@@ -43,8 +43,7 @@ const getHistorialSolicitud = async (req, res) => {
             .populate('foto', 'url')
             .populate({
                 path: 'solucion',
-                select: 'descripcionSolucion evidencia',
-                populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+                select: 'descripcionSolucion',
             });
 
         res.status(200).json({ message: "Solicitudes consultadas exitosamente", data });
@@ -193,7 +192,8 @@ const crearSolicitud = async (req, res) => {
 };
 
 
-// crear solicitudes creadas por el funcionario
+
+// historial solicitudes creadas por el funcionario
 const historialSolicitudesCreadas = async (req, res) =>{
     const usuarioId = req.usuario._id; // middleware de sesión con JWT
     const usuario = await usuarioModel.findById({_id:usuarioId})
@@ -204,11 +204,10 @@ const historialSolicitudesCreadas = async (req, res) =>{
             .select('descripcion fecha estado')
             .populate('ambiente', 'nombre')
             .populate('tecnico', 'nombre')
-            .populate('foto', 'url filename')
+            .populate('foto', 'url')
             .populate({
                 path: 'solucion',
-                select: 'descripcionSolucion evidencia',
-                populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+                select: 'descripcionSolucion',
             });
         
 
@@ -305,7 +304,7 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
 
 
-// solicitudes finalizadas con la solucion respectiva del técnico,  historial del tecnico
+// historial solicitudes finalizadas vista técnico
 const getSolicitudesFinalizadas = async (req, res) => {
     try {
       const tecnicoId = req.usuario._id; // middleware de sesión con JWT
