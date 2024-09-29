@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { usuarioModel } = require('../models'); 
 const { sendMail } = require('../utils/handleEmail');
 const bcrypt = require('bcryptjs');
-
+const RENDER_URL = process.env.RENDER_URL 
 
 
 
@@ -36,7 +36,8 @@ const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
         await user.save();
 
-        const resetUrl = `http://localhost:3010/api/restablecerPassword/${token}`;
+        // const resetUrl = `http://localhost:3010/api/restablecerPassword/${token}`;
+        const resetUrl = `${RENDER_URL}/api/restablecerPassword/${token}`;
 
         const mailOptions = {
             from: process.env.EMAIL_USER,

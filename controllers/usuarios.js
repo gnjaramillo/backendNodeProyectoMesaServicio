@@ -238,7 +238,7 @@ const usuariosActivos = async (req, res) =>{
 const usuariosInactivos = async (req, res) =>{
     try {
         
-        const data = await usuarioModel.find({activo: false, estado: true})
+        const data = await usuarioModel.find({activo: false, estado:true})
         .select('nombre correo telefono');
  
         res.send({ data });

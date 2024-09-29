@@ -66,9 +66,10 @@ app.use(cors({
   origin: [process.env.FRONTEND_URL, process.env.MOVIL_URL, process.env.FRONTEND_URL_DEV],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200
+  allowedHeaders: ["Content-Type", "Authorization"], // Encabezados permitidos
+  optionsSuccessStatus: 200 // Para resolver problemas con navegadores antiguos
 }));
+
 
 
 
