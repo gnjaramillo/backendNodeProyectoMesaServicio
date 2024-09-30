@@ -200,8 +200,8 @@ const historialSolicitudesCreadas = async (req, res) =>{
 
     try {
         const solicitudesFinalizadas = await solicitudModel
-            .find({usuario: usuarioId, estado: 'finalizado' })
-            .select('descripcion fecha estado')
+            .find({usuario: usuarioId})
+            .select('descripcion fecha estado codigoCaso')
             .populate('ambiente', 'nombre')
             .populate('tecnico', 'nombre')
             .populate('foto', 'url')
@@ -289,10 +289,15 @@ const getSolicitudesAsignadas = async (req,res) =>{
 
         const solicitudesAsignadas = await solicitudModel
             .find({tecnico: tecnicoId, estado:{$ne: 'finalizado'}}) // Excluir finalizadas, solo mostrar pendientes o asignadas
-            .select('descripcion telefono fecha estado')
+            .select('descripcion telefono fecha estado codigoCaso')
             .populate('usuario', 'nombre')
             .populate('ambiente', 'nombre')
-            .populate('foto', 'url');
+            .populate('foto', 'url')
+            .populate({
+                path: 'solucion',
+                select: 'descripcionSolucion',
+            });
+    
 
         res.status(200).json({message:`solicitudes asignadas tecnico ${tecnico.nombre}`, solicitudesAsignadas });
         

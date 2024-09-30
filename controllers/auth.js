@@ -122,7 +122,7 @@ const loginCtrl = async (req, res) => {
     res.cookie("token", token, {
             secure: true,
             sameSite: "none",
-            httpOnly: true
+            httpOnly: false //verificar cuando cambiar a true
         }); 
 
       /*   res.cookie('token', token, {
