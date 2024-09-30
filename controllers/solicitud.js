@@ -312,32 +312,33 @@ const getSolicitudesAsignadas = async (req,res) =>{
 // historial solicitudes finalizadas vista técnico
 const getSolicitudesFinalizadas = async (req, res) => {
     try {
-      const tecnicoId = req.usuario._id; // middleware de sesión con JWT
-      const tecnico = await usuarioModel.findById({_id:tecnicoId})
+        const tecnicoId = req.usuario._id; // middleware de sesión con JWT
+        const tecnico = await usuarioModel.findById({_id: tecnicoId});
       
-      // Filtra las solicitudes asignadas al técnico que estén en estado "finalizado"
-      const solicitudesFinalizadas = await solicitudModel
-        .find({ tecnico: tecnicoId, estado: 'finalizado' })
-        .select('descripcion fecha codigoCaso') 
-        .populate('usuario', 'nombre')
-        .populate('ambiente', 'nombre')
-        .populate('foto', 'url')
-        .populate({
-            path: 'solucion',
-            select: 'descripcionSolucion evidencia',
-            populate: { path: 'evidencia', select: 'url' } // Traer también la evidencia si existe
+        // Filtra las solicitudes asignadas al técnico que estén en estado "finalizado"
+        const solicitudesFinalizadas = await solicitudModel
+            .find({ tecnico: tecnicoId, estado: 'finalizado' })
+            .select('descripcion fecha codigoCaso')
+            .populate('usuario', 'nombre')
+            .populate('ambiente', 'nombre')
+            .populate('foto', 'url')
+            .populate({
+                path: 'solucion',
+                select: 'descripcionSolucion evidencia',
+                populate: { path: 'evidencia', select: 'url' } 
+            });
+
+          
+
+        // Respuesta con las solicitudes finalizadas
+        res.status(200).json({
+            message: `Solicitudes finalizadas del técnico ${tecnico.nombre}`,
+            solicitudesFinalizadas,
         });
-        
-  
-      // Respuesta con las solicitudes finalizadas
-      res.status(200).json({
-        message: `Solicitudes finalizadas del técnico ${tecnico.nombre}`,
-        solicitudesFinalizadas,
-      });
     } catch (error) {
-      handleHttpError(res, 'Error al obtener solicitudes finalizadas');
+        handleHttpError(res, 'Error al obtener solicitudes finalizadas');
     }
-  };
+};
   
 
 module.exports = { getSolicitud, getHistorialSolicitud, getSolicitudId, getSolicitudesPendientes, crearSolicitud, historialSolicitudesCreadas, asignarTecnicoSolicitud, getSolicitudesAsignadas,  getSolicitudesFinalizadas, deleteSolicitud };

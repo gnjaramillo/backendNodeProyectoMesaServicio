@@ -122,8 +122,8 @@ const loginCtrl = async (req, res) => {
     res.cookie("token", token, {
             secure: true,
             sameSite: "none",
-            httpOnly: false //verificar cuando cambiar a true
-        }); 
+            httpOnly: false
+        });
 
       /*   res.cookie('token', token, {
             httpOnly: true, // Hace que la cookie no sea accesible mediante JavaScript en el cliente
@@ -248,3 +248,5 @@ esquema de Mongoose tiene restricciones estrictas. */
 
 /* El error de clave duplicada en MongoDB genera un código 
 de error 11000. */
+
+
