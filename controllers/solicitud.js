@@ -200,8 +200,8 @@ const historialSolicitudesCreadas = async (req, res) =>{
 
     try {
         const solicitudesFinalizadas = await solicitudModel
-            .find({usuario: usuarioId, estado: 'finalizado' })
-            .select('descripcion fecha estado')
+            .find({usuario: usuarioId})
+            .select('descripcion fecha estado codigoCaso')
             .populate('ambiente', 'nombre')
             .populate('tecnico', 'nombre')
             .populate('foto', 'url')
