@@ -5,6 +5,8 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:3010";
 const transporter = require('../utils/handleEmail');
 // Importar socket.io
 const { io } = require('../utils/handleSocket'); 
+const { DateTime } = require('luxon');
+
 
 
 
@@ -122,9 +124,7 @@ const getSolicitudesPendientes = async (req, res) => {
 };
 
 
-
-
-// crear solicitud por funcionarios
+/* // crear solicitud por funcionarios
 const crearSolicitud = async (req, res) => {
     const { body } = req;
     const file = req.file;
@@ -179,6 +179,94 @@ const crearSolicitud = async (req, res) => {
             html: `Cordial saludo, ${usuario.nombre}, nos permitimos \
                 informarle que su solicitud fue registrada en nuestro sistema con el número de caso \
                 ${codigoCaso}. <br><br> Su caso será gestionado en el menor tiempo posible, \
+                según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.\
+                <br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url:\
+                http://mesadeservicioctpicauca.sena.edu.co.`
+        });
+        console.log('Correo enviado a:', usuario.correo);
+
+    } catch (error) {
+        console.error('Error al registrar la solicitud:', error);
+        handleHttpError(res, "Error al registrar solicitud");
+    }
+}; */
+
+
+
+// Función para generar un código de caso aleatorio que incluye la fecha
+const generarCodigoCasoAleatorio = (fechaSolicitud) => {
+    const fecha = DateTime.fromJSDate(fechaSolicitud).toFormat('yyyyMMdd'); // Formato de la fecha: YYYYMMDD
+    const longitud = 6; // Longitud del código aleatorio
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let codigoAleatorio = '';
+
+    for (let i = 0; i < longitud; i++) {
+        const randomIndex = Math.floor(Math.random() * caracteres.length);
+        codigoAleatorio += caracteres[randomIndex];
+    }
+
+    return `${fecha}-${codigoAleatorio}`; // Combina fecha con código aleatorio
+};
+
+
+
+
+
+// crear solicitud por funcionarios
+const crearSolicitud = async (req, res) => {
+    const { body } = req;
+    const file = req.file;
+    const usuarioId = req.usuario._id; // middleware de sesión con JWT
+    
+    try {
+        // Validar si el ambiente asociado está activo
+        const ambienteActivo = await ambienteModel.findOne({ _id: body.ambiente, activo: true });
+        if (!ambienteActivo) {
+            return handleHttpError(res, "El ambiente seleccionado no está activo o no existe", 400);
+        }
+
+        let fotoId;
+
+        // Si hay un archivo adjunto, guárdalo y obtén su ID
+        if (file) {
+            const fileData = {
+                filename: file.filename,
+                url: `${PUBLIC_URL}/${file.filename}`
+            };
+
+            const fileSaved = await storageModel.create(fileData);
+            fotoId = fileSaved._id;
+        } else {
+            console.log('No se subió ningún archivo.');
+        }
+
+        // Crear un nuevo documento de solicitud y obtener la fecha generada
+        const nuevaSolicitud = new solicitudModel({
+            ...body,
+            usuario: usuarioId,
+            foto: fotoId, 
+            estado: 'solicitado',
+        });
+
+        // Ahora que la fecha se generó, obtenla y usa esa fecha para el código del caso
+        const codigoCaso = generarCodigoCasoAleatorio(nuevaSolicitud.fecha);
+        nuevaSolicitud.codigoCaso = codigoCaso;
+
+        // Guardar la solicitud con el código de caso generado
+        const solicitudCreada = await nuevaSolicitud.save();
+        res.status(201).send({ message: "Registro de solicitud exitoso", solicitud: solicitudCreada });
+
+        // Enviar correo al funcionario 
+        const usuario = await usuarioModel.findById(nuevaSolicitud.usuario);
+        console.log('Usuario que registró la solicitud:', usuario);
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: usuario.correo,
+            subject: 'Registro Solicitud - Mesa de Servicio - CTPI-CAUCA',
+            html: `Cordial saludo, ${usuario.nombre}, nos permitimos \
+                informarle que su solicitud fue registrada en nuestro sistema con el número de caso \
+                ${codigoCaso} <br><br> Su caso será gestionado en el menor tiempo posible, \
                 según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.\
                 <br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url:\
                 http://mesadeservicioctpicauca.sena.edu.co.`

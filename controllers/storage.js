@@ -15,10 +15,6 @@ const createStorage = async (req, res) => {
         return res.status(400).send({ message: "archivo no cargado" });
     }
 
-    /* const fileData = {
-        filename: file.filename,
-        url: `${RENDER_URL}/${file.filename}`
-    }; */
 
     const fileData = {
         filename: file.filename,

@@ -218,6 +218,7 @@ const reactivarUsuarios = async (req, res) => {
 };
 
 
+
 // lista usuarios o tecnicos activos (vista lider)
 const usuariosActivos = async (req, res) =>{
     try {
@@ -230,7 +231,6 @@ const usuariosActivos = async (req, res) =>{
         handleHttpError(res, "error al obtene datos", 500);
 }
 }
-
 
 
 

@@ -7,10 +7,6 @@ const transporter = require('../utils/handleEmail')
 const { tokenSign } = require("../utils/handleJwt.js");
 
 
-
-
-
-
 // tecnicos que requieren aprobacion
 const listaTecnicosPendientes = async (req,res)=>{
     
@@ -146,4 +142,3 @@ module.exports = { listaTecnicosPendientes, aprobarTecnico, denegarTecnico, list
 
 
 
-//find siempre debe devolver un array,

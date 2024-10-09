@@ -1,4 +1,4 @@
-
+/* 
 const mongoose = require('mongoose');
 
 const consecutivoCasoSchema = new mongoose.Schema({
@@ -17,3 +17,4 @@ const consecutivoCasoSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Consecutivo', consecutivoCasoSchema);
+ */

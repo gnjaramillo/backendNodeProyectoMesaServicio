@@ -1,5 +1,3 @@
-
-
 const { solicitudModel } = require("../models");
 const { handleHttpError } = require("../utils/handleError");
 

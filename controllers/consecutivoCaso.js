@@ -1,4 +1,4 @@
-const { consecutivoCasoModel } = require("../models");
+/* const { consecutivoCasoModel } = require("../models");
 const { DateTime } = require("luxon");
 
 
@@ -33,3 +33,4 @@ const postConsecutivoCaso = async () => {
 };
 
 module.exports = { postConsecutivoCaso };
+ */
